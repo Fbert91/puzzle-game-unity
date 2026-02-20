@@ -1,0 +1,33 @@
+[PLACEHOLDER] Effect & Particle Sprites
+
+Ready to receive downloaded sprites from:
+- Source: Kenney.nl Particle Pack
+- URL: https://kenney.nl/assets/particle-pack
+- License: CC0 (Public Domain)
+
+Expected files (individual particles):
+✓ particle_confetti.png (celebration)
+✓ particle_sparkle.png (magical effects)
+✓ particle_shine.png (light reflection)
+✓ particle_explosion.png (power-up trigger)
+✓ particle_star.png (success feedback)
+✓ particle_smoke.png (tile removal)
+
+Expected animation frame files:
+✓ anim_pop_1.png through anim_pop_6.png
+✓ anim_bounce_1.png through anim_bounce_4.png
+✓ anim_glow_1.png through anim_glow_4.png
+
+Size: 16x16 to 64x64 pixels (particles)
+Format: PNG with transparency
+Animation frames: Sequential numbering (1, 2, 3, 4...)
+
+Usage:
+- Confetti: Level completion
+- Sparkles: Tile interaction
+- Shine: Highlights
+- Explosion: Power-up activation
+- Stars: Achievement rewards
+- Smoke: Tile removal effects
+
+See SPRITE_MANIFEST.md for effect usage guide.

@@ -1,0 +1,24 @@
+[PLACEHOLDER] Icon Sprites
+
+Ready to receive downloaded sprites from:
+- Primary Source: Game-Icons.net
+- Secondary Source: Kenney.nl Game Icons
+- License: CC0 (Public Domain)
+
+Expected icons:
+✓ icon_coin.png (currency)
+✓ icon_gem.png (special currency)
+✓ icon_star.png (achievements)
+✓ icon_hint.png (lightbulb - hint system)
+✓ icon_heart.png (health/life)
+✓ icon_shield.png (protection)
+✓ icon_timer.png (time/turns)
+✓ icon_zoom.png (zoom/focus)
+✓ icon_undo.png (undo move)
+✓ icon_power.png (power-ups)
+
+Size: 64x64 pixels recommended
+Format: PNG with transparency
+Download from: https://game-icons.net/
+
+See SPRITE_MANIFEST.md for icon selection guide.

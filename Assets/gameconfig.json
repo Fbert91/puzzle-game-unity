@@ -1,0 +1,49 @@
+{
+  "appName": "Puzzle Game",
+  "bundleIdentifier": "com.fbert91.puzzlegame",
+  "appVersion": "1.0.0",
+  "bundleVersion": 1,
+  "targetSDKVersion": 33,
+  "minimumSDKVersion": 24,
+  "orientation": "Portrait",
+  "targetFrameRate": 60,
+  "graphicsAPIs": ["Vulkan", "OpenGLES3"],
+  "useIL2CPP": true,
+  "architecture": "ARMv7,ARMv8",
+  "compressionMethod": "LZ4HC",
+  "stripEngineCode": true,
+  "enableManagedStripping": true,
+  "adUnitIDs": {
+    "appID": "ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy",
+    "banner": "ca-app-pub-3940256099942544/6300978111",
+    "rewarded": "ca-app-pub-3940256099942544/5224354917",
+    "interstitial": "ca-app-pub-3940256099942544/1033173712"
+  },
+  "monetization": {
+    "adsEnabled": true,
+    "iapEnabled": true,
+    "bannerPosition": "bottom",
+    "bannerShowAtStartup": true
+  },
+  "analytics": {
+    "enabled": true,
+    "serverURL": "http://analytics.puzzle-game.local:8888",
+    "localStorageOnly": true
+  },
+  "build": {
+    "releaseKeystore": "puzzle.keystore",
+    "keystorePassword": "CHANGE_ME",
+    "keyAlias": "puzzlegame",
+    "keyPassword": "CHANGE_ME",
+    "debuggable": false,
+    "splitAPK": false,
+    "targetCountries": ["CA"]
+  },
+  "permissions": [
+    "android.permission.INTERNET",
+    "android.permission.ACCESS_NETWORK_STATE",
+    "android.permission.ACCESS_FINE_LOCATION",
+    "android.permission.READ_EXTERNAL_STORAGE",
+    "android.permission.WRITE_EXTERNAL_STORAGE"
+  ]
+}

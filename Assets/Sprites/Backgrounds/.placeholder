@@ -1,0 +1,23 @@
+[PLACEHOLDER] Background Sprites
+
+Ready to receive downloaded sprites from:
+- Source: Kenney.nl Backgrounds
+- URL: https://kenney.nl/assets/backgrounds
+- License: CC0 (Public Domain)
+
+Expected files:
+✓ bg_menu.png (main menu background)
+✓ bg_gameplay.png (game board background)
+✓ bg_success.png (level complete celebration)
+✓ bg_gameover.png (game over / retry screen)
+
+Size: 1920x1080 (full HD) or match your game resolution
+Format: PNG (transparent or solid background)
+
+Multiple style variants available:
+- Fantasy, Space, Abstract, Pastel, Geometric, Nature
+
+Choose 2-3 complementary styles for visual consistency.
+Avoid overly busy patterns that distract from gameplay.
+
+See SPRITE_MANIFEST.md for background selection guide.

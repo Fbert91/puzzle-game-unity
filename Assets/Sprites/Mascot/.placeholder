@@ -1,0 +1,19 @@
+[PLACEHOLDER] Mascot Character Sprites
+
+Ready to receive downloaded sprites from:
+- Source: Kenney.nl Character Pack
+- URL: https://kenney.nl/assets/character-pack
+- License: CC0 (Public Domain)
+
+Expected files:
+✓ character_idle.png
+✓ character_happy.png
+✓ character_celebrating.png
+✓ character_encouraging.png
+✓ character_thinking.png
+✓ character_confused.png
+
+All files should be PNG format with transparency (alpha channel).
+Size: 64x64 or 128x128 pixels recommended.
+
+See SPRITE_MANIFEST.md for detailed inventory and download instructions.

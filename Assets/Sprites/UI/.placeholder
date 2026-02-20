@@ -1,0 +1,23 @@
+[PLACEHOLDER] UI Button Sprites
+
+Ready to receive downloaded sprites from:
+- Source: Kenney.nl Game Icons Pack
+- URL: https://kenney.nl/assets/game-icons
+- License: CC0 (Public Domain)
+
+Expected files:
+✓ button_play.png, button_play_hover.png, button_play_pressed.png
+✓ button_pause.png, button_settings.png, button_back.png
+✓ button_shop.png, button_info.png, button_hint.png
+✓ button_menu.png
+✓ panel_background.png, divider.png, title_panel.png
+
+All buttons should have three states:
+1. Default (normal)
+2. Hover (highlighted/lighter)
+3. Pressed (darker/depressed)
+
+Size: 128x64 pixels (buttons), variable (panels)
+Format: PNG with transparency
+
+See SPRITE_MANIFEST.md for UI element details.

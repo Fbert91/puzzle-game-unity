@@ -1,0 +1,21 @@
+[PLACEHOLDER] Tile Sprites
+
+Ready to receive downloaded sprites from:
+- Source: Kenney.nl Puzzle Pack
+- URL: https://kenney.nl/assets/puzzle-pack
+- License: CC0 (Public Domain)
+
+Expected files:
+✓ tile_base.png (empty tile)
+✓ tile_1.png through tile_9.png (numbered tiles)
+✓ tile_star.png, tile_heart.png, tile_gem.png (symbol tiles)
+✓ tile_selected.png, tile_highlighted.png (interaction states)
+✓ tile_locked.png, tile_disabled.png (state variants)
+
+All files should be PNG format with transparency.
+Size: 64x64 pixels recommended.
+
+Color variants available: Red, Blue, Green, Yellow, Purple, Orange
+Choose one consistent color throughout game.
+
+See SPRITE_MANIFEST.md for complete inventory.
