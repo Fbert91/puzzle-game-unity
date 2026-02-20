@@ -86,6 +86,10 @@ public class UIManager : MonoBehaviour
         mainMenuPanel.SetActive(true);
         if (characterController) characterController.PlayIdle();
         Time.timeScale = 1f; // Resume time
+        
+        // Play menu music
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayMenuMusic();
     }
 
     public void ShowLevelSelect()
@@ -109,6 +113,10 @@ public class UIManager : MonoBehaviour
             PuzzleGame.Instance.LoadLevel(levelId);
             UpdateGameplayHUD();
         }
+        
+        // Play gameplay music
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayGameplayMusic();
     }
 
     public void ShowVictory(int score, int stars)
@@ -125,6 +133,10 @@ public class UIManager : MonoBehaviour
 
         if (characterController)
             characterController.PlayWinAnimation();
+        
+        // Play victory sound
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayLevelComplete();
     }
 
     public void ShowSettings()
@@ -171,8 +183,16 @@ public class UIManager : MonoBehaviour
 
     private void SetupMainMenuListeners()
     {
-        playButton.onClick.AddListener(ShowLevelSelect);
-        settingsButton.onClick.AddListener(ShowSettings);
+        playButton.onClick.AddListener(() => 
+        { 
+            AudioManager.Instance?.PlayButtonClick();
+            ShowLevelSelect();
+        });
+        settingsButton.onClick.AddListener(() =>
+        {
+            AudioManager.Instance?.PlayButtonClick();
+            ShowSettings();
+        });
     }
 
     #endregion
@@ -230,9 +250,23 @@ public class UIManager : MonoBehaviour
 
     private void SetupGameplayListeners()
     {
-        hintButton.onClick.AddListener(UseHint);
-        pauseButton.onClick.AddListener(ShowPause);
-        settingsGameplayButton.onClick.AddListener(ShowSettings);
+        hintButton.onClick.AddListener(() =>
+        {
+            AudioManager.Instance?.PlayButtonClick();
+            UseHint();
+        });
+        
+        pauseButton.onClick.AddListener(() =>
+        {
+            AudioManager.Instance?.PlayButtonClick();
+            ShowPause();
+        });
+        
+        settingsGameplayButton.onClick.AddListener(() =>
+        {
+            AudioManager.Instance?.PlayButtonClick();
+            ShowSettings();
+        });
 
         // Subscribe to puzzle events
         if (PuzzleGame.Instance)
@@ -240,6 +274,10 @@ public class UIManager : MonoBehaviour
             PuzzleGame.Instance.OnBoardUpdated += UpdateGameplayHUD;
             PuzzleGame.Instance.OnPuzzleSolved += OnPuzzleSolved;
             PuzzleGame.Instance.OnHintUsed += OnHintUsed;
+            PuzzleGame.Instance.OnTileSelected += (tile) => 
+            { 
+                AudioManager.Instance?.PlayTilePickup();
+            };
         }
     }
 
@@ -300,9 +338,23 @@ public class UIManager : MonoBehaviour
 
     private void SetupVictoryListeners()
     {
-        nextLevelButton.onClick.AddListener(PlayNextLevel);
-        replayButton.onClick.AddListener(() => ShowGameplay(currentLevelId));
-        menuButton.onClick.AddListener(ShowMainMenu);
+        nextLevelButton.onClick.AddListener(() =>
+        {
+            AudioManager.Instance?.PlayButtonClick();
+            PlayNextLevel();
+        });
+        
+        replayButton.onClick.AddListener(() =>
+        {
+            AudioManager.Instance?.PlayButtonClick();
+            ShowGameplay(currentLevelId);
+        });
+        
+        menuButton.onClick.AddListener(() =>
+        {
+            AudioManager.Instance?.PlayButtonClick();
+            ShowMainMenu();
+        });
     }
 
     private void PlayNextLevel()

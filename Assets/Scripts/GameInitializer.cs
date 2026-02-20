@@ -15,6 +15,7 @@ public class GameInitializer : MonoBehaviour
         EnsureManager<PuzzleGame>("PuzzleGame");
         EnsureManager<MonetizationManager>("MonetizationManager");
         EnsureManager<Analytics>("Analytics");
+        EnsureManager<AudioManager>("AudioManager");
 
         if (debugMode)
         {
@@ -38,6 +39,12 @@ public class GameInitializer : MonoBehaviour
     {
         // Set quality settings for mobile
         QualitySettings.vSyncCount = 1; // 60 FPS lock
+        
+        // Initialize audio system and play menu music
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayMenuMusic();
+        }
         
         // Log device info
         if (debugMode)
