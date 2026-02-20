@@ -1,4 +1,4 @@
-# Unity generated
+# Unity generated (but NOT ProjectSettings & Packages - those are required!)
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
@@ -6,6 +6,8 @@
 [Bb]uilds/
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
+!ProjectSettings/
+!Packages/
 
 # Visual Studio cache directory
 .vs/
