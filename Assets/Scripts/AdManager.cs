@@ -3,13 +3,9 @@ using GoogleMobileAds.Api;
 using System;
 
 /// <summary>
-/// AdManager - Singleton for managing all advertisements (Banner, Rewarded, Interstitial)
-/// Integrates Google Mobile Ads SDK for Unity (AdMob)
-/// 
-/// Usage:
-///   - Add to scene as singleton
-///   - Initialize with your ad unit IDs
-///   - Show ads via AdManager.Instance.Show*() methods
+/// AdManager - Rewarded + Interstitial ad system (banners removed)
+/// Rewarded ads: after 3+ fails, daily bonus 2x, streak freeze
+/// Interstitial ads: every 5 levels, max 3/session, never first session
 /// </summary>
 public class AdManager : MonoBehaviour
 {
@@ -30,16 +26,13 @@ public class AdManager : MonoBehaviour
     }
     #endregion
 
-    #region Ad Unit IDs (Configuration)
-    // TODO: Replace with your actual AdMob app ID and ad unit IDs
-    private string _appID = "ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy"; // Your AdMob App ID
-    private string _bannerAdUnitID = "ca-app-pub-3940256099942544/6300978111"; // Test Banner ID
-    private string _rewardedAdUnitID = "ca-app-pub-3940256099942544/5224354917"; // Test Rewarded ID
-    private string _interstitialAdUnitID = "ca-app-pub-3940256099942544/1033173712"; // Test Interstitial ID
+    #region Ad Unit IDs
+    private string _appID = "ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy";
+    private string _rewardedAdUnitID = "ca-app-pub-3940256099942544/5224354917";     // Test Rewarded
+    private string _interstitialAdUnitID = "ca-app-pub-3940256099942544/1033173712"; // Test Interstitial
     #endregion
 
     #region Ad Objects
-    private BannerView _bannerView;
     private RewardedAd _rewardedAd;
     private InterstitialAd _interstitialAd;
     #endregion
@@ -48,13 +41,21 @@ public class AdManager : MonoBehaviour
     public event Action OnRewardedAdClosed;
     public event Action<Reward> OnRewardEarned;
     public event Action OnInterstitialClosed;
-    public event Action OnBannerLoaded;
     #endregion
 
     #region Properties
-    public bool IsBannerLoaded { get; private set; }
     public bool IsRewardedLoaded { get; private set; }
     public bool IsInterstitialLoaded { get; private set; }
+    #endregion
+
+    #region Session Tracking
+    private int interstitialAdsShownThisSession = 0;
+    private int maxInterstitialsPerSession = 3;
+    private int levelsCompletedThisSession = 0;
+    private int failCountForCurrentLevel = 0;
+    private bool isFirstSession = false;
+
+    private const string FIRST_SESSION_KEY = "AdManager_FirstSessionDone";
     #endregion
 
     private void Awake()
@@ -70,103 +71,35 @@ public class AdManager : MonoBehaviour
 
     private void Start()
     {
+        isFirstSession = PlayerPrefs.GetInt(FIRST_SESSION_KEY, 0) == 0;
         InitializeAdMob();
-        LoadBannerAd();
         LoadRewardedAd();
         LoadInterstitialAd();
     }
 
     #region Initialization
-    /// <summary>Initialize Google Mobile Ads SDK</summary>
     public void InitializeAdMob()
     {
         if (MobileAds.IsInitialized) return;
 
         MobileAds.Initialize(initStatus =>
         {
-            Debug.Log("[AdManager] AdMob initialized");
-            Debug.Log($"[AdManager] Status: {initStatus}");
+            Debug.Log("[AdManager] AdMob initialized (no banners)");
         });
     }
 
-    /// <summary>Set AD Unit IDs (Production)</summary>
-    public void SetAdUnitIDs(string appID, string bannerID, string rewardedID, string interstitialID)
+    public void SetAdUnitIDs(string appID, string rewardedID, string interstitialID)
     {
         _appID = appID;
-        _bannerAdUnitID = bannerID;
         _rewardedAdUnitID = rewardedID;
         _interstitialAdUnitID = interstitialID;
-        Debug.Log("[AdManager] Ad unit IDs updated");
-    }
-    #endregion
-
-    #region Banner Ad
-    /// <summary>Load Banner Ad at bottom of screen</summary>
-    private void LoadBannerAd()
-    {
-        // Create banner view
-        _bannerView = new BannerView(_bannerAdUnitID, AdSize.Banner, AdPosition.Bottom);
-
-        // Register callback events
-        _bannerView.OnBannerAdLoaded += BannerView_OnBannerAdLoaded;
-        _bannerView.OnBannerAdLoadFailed += BannerView_OnBannerAdLoadFailed;
-
-        // Create ad request
-        var adRequest = new AdRequest();
-
-        // Load ad
-        _bannerView.LoadAd(adRequest);
-        Debug.Log("[AdManager] Loading Banner Ad...");
-    }
-
-    private void BannerView_OnBannerAdLoaded()
-    {
-        IsBannerLoaded = true;
-        OnBannerLoaded?.Invoke();
-        Debug.Log("[AdManager] Banner Ad Loaded Successfully");
-    }
-
-    private void BannerView_OnBannerAdLoadFailed(LoadAdError error)
-    {
-        IsBannerLoaded = false;
-        Debug.LogWarning($"[AdManager] Banner Ad Failed: {error.GetMessage()}");
-    }
-
-    public void ShowBannerAd()
-    {
-        if (_bannerView != null)
-        {
-            _bannerView.Show();
-            Debug.Log("[AdManager] Showing Banner Ad");
-        }
-    }
-
-    public void HideBannerAd()
-    {
-        if (_bannerView != null)
-        {
-            _bannerView.Hide();
-            Debug.Log("[AdManager] Hiding Banner Ad");
-        }
-    }
-
-    public void DestroyBannerAd()
-    {
-        if (_bannerView != null)
-        {
-            _bannerView.Destroy();
-            _bannerView = null;
-            Debug.Log("[AdManager] Banner Ad Destroyed");
-        }
     }
     #endregion
 
     #region Rewarded Ad
-    /// <summary>Load Rewarded Video Ad (watch for coins)</summary>
     private void LoadRewardedAd()
     {
         var adRequest = new AdRequest();
-
         RewardedAd.Load(_rewardedAdUnitID, adRequest, OnRewardedAdLoaded);
         Debug.Log("[AdManager] Loading Rewarded Ad...");
     }
@@ -183,70 +116,52 @@ public class AdManager : MonoBehaviour
         _rewardedAd = ad;
         IsRewardedLoaded = true;
 
-        // Register callbacks
-        _rewardedAd.OnAdFullScreenContentOpened += RewardedAd_OnAdFullScreenContentOpened;
-        _rewardedAd.OnAdFullScreenContentClosed += RewardedAd_OnAdFullScreenContentClosed;
-        _rewardedAd.OnAdFullScreenContentFailed += RewardedAd_OnAdFullScreenContentFailed;
-        _rewardedAd.OnAdClicked += RewardedAd_OnAdClicked;
-        _rewardedAd.OnAdImpressionRecorded += RewardedAd_OnAdImpressionRecorded;
+        _rewardedAd.OnAdFullScreenContentClosed += () =>
+        {
+            Debug.Log("[AdManager] Rewarded Ad Closed");
+            OnRewardedAdClosed?.Invoke();
+            LoadRewardedAd();
+        };
+
+        _rewardedAd.OnAdFullScreenContentFailed += (AdError err) =>
+        {
+            Debug.LogWarning($"[AdManager] Rewarded Ad Failed: {err}");
+            LoadRewardedAd();
+        };
 
         Debug.Log("[AdManager] Rewarded Ad Loaded");
     }
 
-    private void RewardedAd_OnAdFullScreenContentOpened()
-    {
-        Debug.Log("[AdManager] Rewarded Ad Opened");
-    }
-
-    private void RewardedAd_OnAdFullScreenContentClosed()
-    {
-        Debug.Log("[AdManager] Rewarded Ad Closed");
-        OnRewardedAdClosed?.Invoke();
-        LoadRewardedAd(); // Load next one
-    }
-
-    private void RewardedAd_OnAdFullScreenContentFailed(AdError error)
-    {
-        Debug.LogWarning($"[AdManager] Rewarded Ad Failed: {error}");
-        LoadRewardedAd();
-    }
-
-    private void RewardedAd_OnAdClicked()
-    {
-        Debug.Log("[AdManager] Rewarded Ad Clicked");
-    }
-
-    private void RewardedAd_OnAdImpressionRecorded()
-    {
-        Debug.Log("[AdManager] Rewarded Ad Impression Recorded");
-    }
-
-    /// <summary>Show Rewarded Ad and execute callback on reward</summary>
+    /// <summary>
+    /// Show rewarded ad with callback
+    /// </summary>
     public void ShowRewardedAd(System.Action<Reward> onRewardCallback)
     {
         if (IsRewardedLoaded && _rewardedAd != null)
         {
             _rewardedAd.Show(reward =>
             {
-                Debug.Log($"[AdManager] User earned reward: {reward.Amount} {reward.Type}");
+                Debug.Log($"[AdManager] Reward earned: {reward.Amount} {reward.Type}");
                 OnRewardEarned?.Invoke(reward);
                 onRewardCallback?.Invoke(reward);
+
+                // Log analytics
+                if (Analytics.Instance != null)
+                    Analytics.Instance.LogAdReward("admob", reward.Type, (int)reward.Amount);
             });
         }
         else
         {
-            Debug.LogWarning("[AdManager] Rewarded Ad not loaded yet");
+            Debug.LogWarning("[AdManager] Rewarded Ad not loaded");
             LoadRewardedAd();
         }
     }
     #endregion
 
     #region Interstitial Ad
-    /// <summary>Load Interstitial Ad (full screen)</summary>
     private void LoadInterstitialAd()
     {
         var adRequest = new AdRequest();
-
         InterstitialAd.Load(_interstitialAdUnitID, adRequest, OnInterstitialAdLoaded);
         Debug.Log("[AdManager] Loading Interstitial Ad...");
     }
@@ -256,71 +171,178 @@ public class AdManager : MonoBehaviour
         if (error != null)
         {
             IsInterstitialLoaded = false;
-            Debug.LogWarning($"[AdManager] Interstitial Ad Failed: {error.GetMessage()}");
+            Debug.LogWarning($"[AdManager] Interstitial Failed: {error.GetMessage()}");
             return;
         }
 
         _interstitialAd = ad;
         IsInterstitialLoaded = true;
 
-        // Register callbacks
-        _interstitialAd.OnAdFullScreenContentOpened += InterstitialAd_OnAdFullScreenContentOpened;
-        _interstitialAd.OnAdFullScreenContentClosed += InterstitialAd_OnAdFullScreenContentClosed;
-        _interstitialAd.OnAdFullScreenContentFailed += InterstitialAd_OnAdFullScreenContentFailed;
+        _interstitialAd.OnAdFullScreenContentClosed += () =>
+        {
+            OnInterstitialClosed?.Invoke();
+            LoadInterstitialAd();
+        };
 
-        Debug.Log("[AdManager] Interstitial Ad Loaded");
+        _interstitialAd.OnAdFullScreenContentFailed += (AdError err) =>
+        {
+            LoadInterstitialAd();
+        };
+
+        Debug.Log("[AdManager] Interstitial Loaded");
     }
 
-    private void InterstitialAd_OnAdFullScreenContentOpened()
+    /// <summary>
+    /// Try to show interstitial ad (respects session limits)
+    /// Only between level sets (every 5 levels), max 3/session, never first session
+    /// </summary>
+    public bool TryShowInterstitial()
     {
-        Debug.Log("[AdManager] Interstitial Ad Opened");
-    }
+        // Never on first session
+        if (isFirstSession)
+        {
+            Debug.Log("[AdManager] First session - no interstitials");
+            return false;
+        }
 
-    private void InterstitialAd_OnAdFullScreenContentClosed()
-    {
-        Debug.Log("[AdManager] Interstitial Ad Closed");
-        OnInterstitialClosed?.Invoke();
-        LoadInterstitialAd(); // Load next one
-    }
+        // Max per session
+        if (interstitialAdsShownThisSession >= maxInterstitialsPerSession)
+        {
+            Debug.Log("[AdManager] Max interstitials reached for session");
+            return false;
+        }
 
-    private void InterstitialAd_OnAdFullScreenContentFailed(AdError error)
-    {
-        Debug.LogWarning($"[AdManager] Interstitial Ad Failed: {error}");
-        LoadInterstitialAd();
-    }
+        // Only every 5 levels
+        if (levelsCompletedThisSession % 5 != 0 || levelsCompletedThisSession == 0)
+        {
+            return false;
+        }
 
-    /// <summary>Show Interstitial Ad (after level or in menu)</summary>
-    public void ShowInterstitialAd()
-    {
         if (IsInterstitialLoaded && _interstitialAd != null)
         {
             _interstitialAd.Show();
-            Debug.Log("[AdManager] Showing Interstitial Ad");
+            interstitialAdsShownThisSession++;
+
+            if (Analytics.Instance != null)
+                Analytics.Instance.LogAdImpression("admob", "interstitial");
+
+            Debug.Log($"[AdManager] Interstitial shown ({interstitialAdsShownThisSession}/{maxInterstitialsPerSession})");
+            return true;
         }
-        else
+
+        return false;
+    }
+    #endregion
+
+    #region Integration Points
+
+    /// <summary>
+    /// Called when a level is completed (tracks for interstitial timing)
+    /// </summary>
+    public void OnLevelCompleted()
+    {
+        levelsCompletedThisSession++;
+        failCountForCurrentLevel = 0;
+    }
+
+    /// <summary>
+    /// Called when player fails a level
+    /// </summary>
+    public void OnLevelFailed()
+    {
+        failCountForCurrentLevel++;
+    }
+
+    /// <summary>
+    /// Check if "Watch ad for hint" should be offered (after 3+ fails)
+    /// </summary>
+    public bool ShouldOfferHintAd()
+    {
+        return failCountForCurrentLevel >= 3 && IsRewardedLoaded;
+    }
+
+    /// <summary>
+    /// Show "Watch ad for hint" rewarded ad
+    /// </summary>
+    public void ShowHintRewardAd(System.Action onHintGranted)
+    {
+        ShowRewardedAd(reward =>
         {
-            Debug.LogWarning("[AdManager] Interstitial Ad not loaded");
-            LoadInterstitialAd();
+            onHintGranted?.Invoke();
+            Debug.Log("[AdManager] Hint reward granted from ad");
+        });
+    }
+
+    /// <summary>
+    /// Show "Watch ad for 2x daily reward"
+    /// </summary>
+    public void ShowDoubleDailyRewardAd(System.Action onDoubleReward)
+    {
+        ShowRewardedAd(reward =>
+        {
+            onDoubleReward?.Invoke();
+            Debug.Log("[AdManager] 2x daily reward granted");
+        });
+    }
+
+    /// <summary>
+    /// Show "Watch ad to save streak"
+    /// </summary>
+    public void ShowStreakFreezeAd(System.Action onStreakFreezed)
+    {
+        ShowRewardedAd(reward =>
+        {
+            onStreakFreezed?.Invoke();
+            Debug.Log("[AdManager] Streak freeze granted from ad");
+        });
+    }
+
+    /// <summary>
+    /// Mark first session as complete (call at end of session)
+    /// </summary>
+    public void MarkFirstSessionComplete()
+    {
+        if (isFirstSession)
+        {
+            isFirstSession = false;
+            PlayerPrefs.SetInt(FIRST_SESSION_KEY, 1);
+            PlayerPrefs.Save();
         }
+    }
+
+    /// <summary>
+    /// Reset session counters
+    /// </summary>
+    public void ResetSessionCounters()
+    {
+        interstitialAdsShownThisSession = 0;
+        levelsCompletedThisSession = 0;
+        failCountForCurrentLevel = 0;
     }
     #endregion
 
     #region Cleanup
     private void OnDestroy()
     {
-        DestroyBannerAd();
-        
         if (_rewardedAd != null)
-        {
             _rewardedAd.Destroy();
-        }
 
         if (_interstitialAd != null)
-        {
             _interstitialAd.Destroy();
-        }
 
-        Debug.Log("[AdManager] Cleaned up all ads");
+        Debug.Log("[AdManager] Cleaned up ads");
     }
+
+    private void OnApplicationQuit()
+    {
+        MarkFirstSessionComplete();
+    }
+    #endregion
+
+    #region Getters
+    public int GetInterstitialsShown() => interstitialAdsShownThisSession;
+    public int GetLevelsCompletedThisSession() => levelsCompletedThisSession;
+    public int GetFailCount() => failCountForCurrentLevel;
+    public bool IsFirstSession() => isFirstSession;
     #endregion
 }

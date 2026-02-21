@@ -3,6 +3,7 @@ using UnityEngine;
 /// <summary>
 /// GameInitializer - Bootstraps the game on startup
 /// Ensures all managers are initialized in correct order
+/// Updated to include all P0 feature managers
 /// </summary>
 public class GameInitializer : MonoBehaviour
 {
@@ -10,16 +11,30 @@ public class GameInitializer : MonoBehaviour
 
     private void Awake()
     {
-        // Ensure managers exist and are initialized
+        // Core managers (order matters)
+        EnsureManager<ProceduralLevelGenerator>("ProceduralLevelGenerator");
         EnsureManager<LevelManager>("LevelManager");
         EnsureManager<PuzzleGame>("PuzzleGame");
         EnsureManager<MonetizationManager>("MonetizationManager");
         EnsureManager<Analytics>("Analytics");
         EnsureManager<AudioManager>("AudioManager");
 
+        // P0 Feature managers
+        EnsureManager<ThemeManager>("ThemeManager");
+        EnsureManager<SoundManager>("SoundManager");
+        EnsureManager<JuiceManager>("JuiceManager");
+        EnsureManager<WorldMapManager>("WorldMapManager");
+        EnsureManager<LevelCompleteManager>("LevelCompleteManager");
+        EnsureManager<TutorialManager>("TutorialManager");
+        EnsureManager<DailyPuzzleManager>("DailyPuzzleManager");
+        EnsureManager<StreakManager>("StreakManager");
+        EnsureManager<HintManager>("HintManager");
+        EnsureManager<PitouManager>("PitouManager");
+        EnsureManager<ShareCardGenerator>("ShareCardGenerator");
+
         if (debugMode)
         {
-            Debug.Log("[GameInitializer] All systems initialized successfully");
+            Debug.Log("[GameInitializer] All systems initialized successfully (P0 features included)");
         }
     }
 
@@ -31,7 +46,8 @@ public class GameInitializer : MonoBehaviour
         {
             GameObject managerObj = new GameObject(name);
             manager = managerObj.AddComponent<T>();
-            Debug.LogWarning($"[GameInitializer] Created missing manager: {name}");
+            if (debugMode)
+                Debug.LogWarning($"[GameInitializer] Created missing manager: {name}");
         }
     }
 
@@ -44,6 +60,19 @@ public class GameInitializer : MonoBehaviour
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.PlayMenuMusic();
+        }
+
+        // Apply theme
+        if (ThemeManager.Instance != null)
+        {
+            // Theme auto-applies on Start
+        }
+
+        // Check daily puzzle availability
+        if (DailyPuzzleManager.Instance != null && !DailyPuzzleManager.Instance.IsTodayCompleted())
+        {
+            if (PitouManager.Instance != null)
+                PitouManager.Instance.OnDailyPuzzleAvailable();
         }
         
         // Log device info
