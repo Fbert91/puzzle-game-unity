@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { display: flex; gap: 30px; padding: 20px; background: #1a1a2e; font-family: 'Segoe UI', sans-serif; justify-content: center; flex-wrap: wrap; }
+
+.phone {
+  width: 360px; height: 640px; border-radius: 30px; overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5); position: relative;
+  border: 3px solid #333;
+}
+
+/* === MAIN MENU === */
+.menu {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 100%; padding: 30px; position: relative;
+}
+.menu::before {
+  content: ''; position: absolute; top: -50px; right: -50px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(233,69,96,0.15) 0%, transparent 70%);
+}
+.menu::after {
+  content: ''; position: absolute; bottom: -30px; left: -30px;
+  width: 150px; height: 150px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(86,204,242,0.15) 0%, transparent 70%);
+}
+.menu .stars { position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; }
+.star { position: absolute; background: white; border-radius: 50%; animation: twinkle 2s infinite; }
+.star:nth-child(1) { width: 3px; height: 3px; top: 10%; left: 20%; }
+.star:nth-child(2) { width: 2px; height: 2px; top: 15%; left: 70%; animation-delay: 0.5s; }
+.star:nth-child(3) { width: 3px; height: 3px; top: 25%; left: 85%; animation-delay: 1s; }
+.star:nth-child(4) { width: 2px; height: 2px; top: 8%; left: 45%; animation-delay: 1.5s; }
+.star:nth-child(5) { width: 2px; height: 2px; top: 20%; left: 30%; animation-delay: 0.3s; }
+@keyframes twinkle { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+.menu .title {
+  font-size: 42px; font-weight: 900; color: white; text-align: center;
+  text-shadow: 0 0 20px rgba(233,69,96,0.5), 0 4px 8px rgba(0,0,0,0.3);
+  letter-spacing: 3px; z-index: 1; margin-bottom: 5px;
+}
+.menu .subtitle {
+  font-size: 16px; color: rgba(255,255,255,0.6); letter-spacing: 2px;
+  z-index: 1; margin-bottom: 15px;
+}
+.mascot {
+  width: 120px; height: 120px; border-radius: 50%;
+  background: linear-gradient(135deg, #e94560, #f39c12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 60px; z-index: 1; margin-bottom: 25px;
+  box-shadow: 0 8px 25px rgba(233,69,96,0.4);
+  animation: bounce 2s infinite;
+}
+@keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+.menu-btn {
+  width: 240px; padding: 14px 0; border-radius: 25px; border: none;
+  font-size: 18px; font-weight: 700; color: white; cursor: pointer;
+  margin-bottom: 12px; z-index: 1; letter-spacing: 1px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+}
+.menu-btn:hover { transform: scale(1.05); }
+.btn-play { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+.btn-settings { background: linear-gradient(135deg, #3498db, #2980b9); }
+.btn-levels { background: linear-gradient(135deg, #e67e22, #f39c12); }
+
+.version { position: absolute; bottom: 15px; color: rgba(255,255,255,0.3); font-size: 12px; z-index: 1; }
+.label { position: absolute; top: -25px; color: #56ccf2; font-size: 14px; font-weight: 600; text-align: center; width: 100%; }
+
+/* === GAMEPLAY === */
+.gameplay {
+  background: linear-gradient(180deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+  height: 100%; display: flex; flex-direction: column; position: relative;
+}
+.top-hud {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 15px 20px; background: rgba(0,0,0,0.3);
+}
+.top-hud span { color: white; font-size: 16px; font-weight: 600; }
+.top-hud .back { color: #56ccf2; cursor: pointer; }
+.top-hud .score { color: #f1c40f; }
+
+.board-area {
+  flex: 1; display: flex; align-items: center; justify-content: center; padding: 15px;
+}
+.board {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;
+  background: rgba(255,255,255,0.05); border-radius: 15px; padding: 10px;
+  border: 2px solid rgba(255,255,255,0.1);
+}
+.tile {
+  width: 56px; height: 56px; border-radius: 10px; display: flex;
+  align-items: center; justify-content: center; font-size: 22px;
+  font-weight: 700; color: white; cursor: pointer;
+  transition: transform 0.2s;
+}
+.tile:hover { transform: scale(1.1); }
+.t1 { background: linear-gradient(135deg, #e94560, #c0392b); }
+.t2 { background: linear-gradient(135deg, #3498db, #2980b9); }
+.t3 { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+.t4 { background: linear-gradient(135deg, #f1c40f, #f39c12); }
+.t5 { background: linear-gradient(135deg, #9b59b6, #8e44ad); }
+.t0 { background: rgba(255,255,255,0.05); border: 2px dashed rgba(255,255,255,0.15); }
+
+.bottom-hud {
+  padding: 12px 20px; background: rgba(0,0,0,0.3);
+}
+.stats { display: flex; justify-content: space-around; margin-bottom: 10px; }
+.stats span { color: rgba(255,255,255,0.7); font-size: 14px; }
+.actions { display: flex; gap: 10px; justify-content: center; }
+.action-btn {
+  padding: 10px 25px; border-radius: 20px; border: none;
+  font-size: 14px; font-weight: 600; color: white; cursor: pointer;
+}
+.btn-hint { background: linear-gradient(135deg, #f1c40f, #e67e22); }
+.btn-undo { background: rgba(255,255,255,0.15); }
+
+/* === SETTINGS === */
+.settings {
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  height: 100%; display: flex; flex-direction: column;
+}
+.settings-top {
+  display: flex; align-items: center; padding: 15px 20px;
+  background: rgba(0,0,0,0.3); gap: 15px;
+}
+.settings-top .back { color: #56ccf2; font-size: 20px; cursor: pointer; }
+.settings-top .title { color: white; font-size: 22px; font-weight: 700; }
+
+.settings-body { padding: 25px 20px; flex: 1; }
+.setting-item { margin-bottom: 25px; }
+.setting-label { color: rgba(255,255,255,0.8); font-size: 15px; margin-bottom: 8px; }
+.slider-track {
+  width: 100%; height: 6px; background: rgba(255,255,255,0.15);
+  border-radius: 3px; position: relative;
+}
+.slider-fill {
+  height: 100%; border-radius: 3px; position: relative;
+}
+.fill-music { width: 65%; background: linear-gradient(90deg, #3498db, #56ccf2); }
+.fill-sfx { width: 80%; background: linear-gradient(90deg, #2ecc71, #27ae60); }
+.slider-thumb {
+  width: 18px; height: 18px; border-radius: 50%; background: white;
+  position: absolute; right: -9px; top: -6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+.toggle-row { display: flex; justify-content: space-between; align-items: center; }
+.toggle {
+  width: 50px; height: 26px; border-radius: 13px;
+  background: rgba(255,255,255,0.15); position: relative;
+}
+.toggle-dot {
+  width: 22px; height: 22px; border-radius: 50%; background: white;
+  position: absolute; top: 2px; left: 2px;
+}
+.divider {
+  height: 1px; background: rgba(255,255,255,0.1);
+  margin: 20px 0;
+}
+.about { color: rgba(255,255,255,0.4); font-size: 13px; line-height: 1.8; text-align: center; }
+</style>
+</head>
+<body>
+
+<!-- MAIN MENU -->
+<div style="position:relative;">
+  <div class="label">🏠 MAIN MENU</div>
+  <div class="phone">
+    <div class="menu">
+      <div class="stars">
+        <div class="star"></div><div class="star"></div><div class="star"></div>
+        <div class="star"></div><div class="star"></div>
+      </div>
+      <div class="title">PUZZLE<br>QUEST</div>
+      <div class="subtitle">LOGIC & TILE</div>
+      <div class="mascot">🦊</div>
+      <button class="menu-btn btn-play">▶ &nbsp; P L A Y</button>
+      <button class="menu-btn btn-settings">⚙ &nbsp; SETTINGS</button>
+      <button class="menu-btn btn-levels">🏆 &nbsp; LEVELS</button>
+      <div class="version">v1.0.0</div>
+    </div>
+  </div>
+</div>
+
+<!-- GAMEPLAY -->
+<div style="position:relative;">
+  <div class="label">🎮 GAMEPLAY</div>
+  <div class="phone">
+    <div class="gameplay">
+      <div class="top-hud">
+        <span class="back">← Back</span>
+        <span>Level 3</span>
+        <span class="score">⭐ 450</span>
+      </div>
+      <div class="board-area">
+        <div class="board">
+          <div class="tile t1">🔴</div><div class="tile t2">🔵</div><div class="tile t3">🟢</div><div class="tile t4">🟡</div><div class="tile t1">🔴</div>
+          <div class="tile t3">🟢</div><div class="tile t0"></div><div class="tile t5">🟣</div><div class="tile t2">🔵</div><div class="tile t3">🟢</div>
+          <div class="tile t4">🟡</div><div class="tile t1">🔴</div><div class="tile t0"></div><div class="tile t4">🟡</div><div class="tile t5">🟣</div>
+          <div class="tile t2">🔵</div><div class="tile t5">🟣</div><div class="tile t3">🟢</div><div class="tile t0"></div><div class="tile t1">🔴</div>
+          <div class="tile t5">🟣</div><div class="tile t4">🟡</div><div class="tile t1">🔴</div><div class="tile t2">🔵</div><div class="tile t4">🟡</div>
+        </div>
+      </div>
+      <div class="bottom-hud">
+        <div class="stats">
+          <span>🎯 Moves: 12</span>
+          <span>⏱ Time: 1:24</span>
+          <span>💎 Combo: x3</span>
+        </div>
+        <div class="actions">
+          <button class="action-btn btn-hint">💡 HINT</button>
+          <button class="action-btn btn-undo">↩ UNDO</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div style="position:relative;">
+  <div class="label">⚙ SETTINGS</div>
+  <div class="phone">
+    <div class="settings">
+      <div class="settings-top">
+        <span class="back">←</span>
+        <span class="title">Settings</span>
+      </div>
+      <div class="settings-body">
+        <div class="setting-item">
+          <div class="setting-label">🔊 Music Volume</div>
+          <div class="slider-track"><div class="slider-fill fill-music"><div class="slider-thumb"></div></div></div>
+        </div>
+        <div class="setting-item">
+          <div class="setting-label">🔉 SFX Volume</div>
+          <div class="slider-track"><div class="slider-fill fill-sfx"><div class="slider-thumb"></div></div></div>
+        </div>
+        <div class="setting-item">
+          <div class="toggle-row">
+            <div class="setting-label">🔇 Mute All</div>
+            <div class="toggle"><div class="toggle-dot"></div></div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="setting-item">
+          <div class="toggle-row">
+            <div class="setting-label">✨ Particles</div>
+            <div class="toggle" style="background:#2ecc71;"><div class="toggle-dot" style="left:26px;"></div></div>
+          </div>
+        </div>
+        <div class="setting-item">
+          <div class="toggle-row">
+            <div class="setting-label">📳 Vibration</div>
+            <div class="toggle" style="background:#2ecc71;"><div class="toggle-dot" style="left:26px;"></div></div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="about">
+          Puzzle Quest v1.0.0<br>
+          Made with ❤️<br>
+          © 2026 PuzzleGameStudio
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
