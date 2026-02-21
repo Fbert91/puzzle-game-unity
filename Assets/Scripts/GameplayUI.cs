@@ -5,18 +5,27 @@ using TMPro;
 
 public class GameplayUI : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI levelText;
-    [SerializeField] private TextMeshProUGUI scoreText;
-    [SerializeField] private TextMeshProUGUI movesText;
+    [Header("Top Bar - Modern Layout")]
     [SerializeField] private TextMeshProUGUI timerText;
+    [SerializeField] private TextMeshProUGUI scoreText;
+    [SerializeField] private TextMeshProUGUI levelText;
     [SerializeField] private Button backButton;
+
+    [Header("Stats Bar")]
+    [SerializeField] private TextMeshProUGUI movesText;
+    [SerializeField] private TextMeshProUGUI comboText;
+
+    [Header("Action Buttons")]
     [SerializeField] private Button hintButton;
     [SerializeField] private Button undoButton;
+
+    [Header("Level Complete")]
     [SerializeField] private GameObject levelCompletePanel;
     [SerializeField] private Button nextLevelButton;
     [SerializeField] private Button menuButton;
 
     private int moves = 0;
+    private int combo = 0;
     private float timer = 0f;
     private bool isPlaying = true;
 
@@ -29,6 +38,8 @@ public class GameplayUI : MonoBehaviour
         if (nextLevelButton) nextLevelButton.onClick.AddListener(OnNextLevel);
         if (menuButton) menuButton.onClick.AddListener(OnBackClick);
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayMusic();
+
+        UpdateCombo(0);
     }
 
     private void Update()
@@ -36,7 +47,9 @@ public class GameplayUI : MonoBehaviour
         if (isPlaying)
         {
             timer += Time.deltaTime;
-            if (timerText) timerText.text = $"Time: {Mathf.FloorToInt(timer / 60)}:{Mathf.FloorToInt(timer % 60):00}";
+            int minutes = Mathf.FloorToInt(timer / 60);
+            int seconds = Mathf.FloorToInt(timer % 60);
+            if (timerText) timerText.text = $"⏱ {minutes}:{seconds:00}";
         }
     }
 
@@ -46,9 +59,20 @@ public class GameplayUI : MonoBehaviour
         if (movesText) movesText.text = $"Moves: {moves}";
     }
 
+    public void UpdateCombo(int newCombo)
+    {
+        combo = newCombo;
+        if (comboText) comboText.text = combo > 1 ? $"Combo: x{combo}" : "";
+    }
+
     public void UpdateScore(int score)
     {
-        if (scoreText) scoreText.text = $"\u2B50 {score}";
+        if (scoreText) scoreText.text = $"⭐ {score}";
+    }
+
+    public void SetLevel(int level)
+    {
+        if (levelText) levelText.text = $"Level {level}";
     }
 
     public void ShowLevelComplete()
