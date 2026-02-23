@@ -29,9 +29,9 @@ public class HintManager : MonoBehaviour
     private static readonly string[] HintMessages = {
         "Try this one! 🐾",
         "Look here! 👀",
-        "Psst... this might help! 😸",
-        "I found something! 🌟",
-        "How about this? 🐱"
+        "Psst... this might help! :3",
+        "I found something! *",
+        "How about this? (=^.^=)"
     };
 
     // PlayerPrefs keys
@@ -304,7 +304,7 @@ public class HintManager : MonoBehaviour
         int total = GetTotalHints();
 
         if (hintCountText != null)
-            hintCountText.text = $"💡 {total}";
+            hintCountText.text = $" {total}";
 
         if (hintButton != null)
             hintButton.interactable = total > 0 && !isHintActive;

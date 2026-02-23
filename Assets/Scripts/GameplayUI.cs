@@ -49,7 +49,7 @@ public class GameplayUI : MonoBehaviour
             timer += Time.deltaTime;
             int minutes = Mathf.FloorToInt(timer / 60);
             int seconds = Mathf.FloorToInt(timer % 60);
-            if (timerText) timerText.text = $"⏱ {minutes}:{seconds:00}";
+            if (timerText) timerText.text = $"{minutes}:{seconds:00}";
         }
     }
 
@@ -67,7 +67,7 @@ public class GameplayUI : MonoBehaviour
 
     public void UpdateScore(int score)
     {
-        if (scoreText) scoreText.text = $"⭐ {score}";
+        if (scoreText) scoreText.text = $"Score: {score}";
     }
 
     public void SetLevel(int level)

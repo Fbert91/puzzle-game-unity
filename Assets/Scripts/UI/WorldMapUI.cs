@@ -120,7 +120,7 @@ public class WorldMapUI : MonoBehaviour
             worldTitleText.text = worldData.worldName;
 
         if (worldProgressText != null)
-            worldProgressText.text = $"{worldData.levelsCompleted}/{worldData.totalLevels} Levels • {worldData.starsEarned} ⭐";
+            worldProgressText.text = $"{worldData.levelsCompleted}/{worldData.totalLevels} Levels • {worldData.starsEarned} *";
 
         // World background color
         if (worldBackground != null)
@@ -137,7 +137,7 @@ public class WorldMapUI : MonoBehaviour
         }
         if (lockRequirementText != null && !worldData.isUnlocked)
         {
-            lockRequirementText.text = $"Requires {worldData.starsRequired} ⭐ to unlock\n(You have {WorldMapManager.Instance.GetTotalStars()})";
+            lockRequirementText.text = $"Requires {worldData.starsRequired} * to unlock\n(You have {WorldMapManager.Instance.GetTotalStars()})";
         }
 
         // Build level nodes
@@ -223,7 +223,7 @@ public class WorldMapUI : MonoBehaviour
     {
         if (totalStarsText != null && WorldMapManager.Instance != null)
         {
-            totalStarsText.text = $"Total Stars: {WorldMapManager.Instance.GetTotalStars()} ⭐";
+            totalStarsText.text = $"Total Stars: {WorldMapManager.Instance.GetTotalStars()} *";
         }
     }
 

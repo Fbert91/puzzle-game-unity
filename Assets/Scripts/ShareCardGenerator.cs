@@ -5,7 +5,7 @@ using System.IO;
 
 /// <summary>
 /// Share Card Generator - Generate shareable images on level complete
-/// "I solved BrainBlast Level X in Y moves! 🧠" + Pitou sprite + branding
+/// "I solved BrainBlast Level X in Y moves! " + Pitou sprite + branding
 /// Native share dialog on Android (Intent.ACTION_SEND)
 /// </summary>
 public class ShareCardGenerator : MonoBehaviour
@@ -54,9 +54,9 @@ public class ShareCardGenerator : MonoBehaviour
         // Update share card content
         string levelText;
         if (levelId == -1)
-            levelText = "I solved BrainBlast's Daily Puzzle! 🧠";
+            levelText = "I solved BrainBlast's Daily Puzzle! ";
         else
-            levelText = $"I solved BrainBlast Level {levelId} in {moves} moves! 🧠";
+            levelText = $"I solved BrainBlast Level {levelId} in {moves} moves! ";
 
         if (shareCardTitleText != null)
             shareCardTitleText.text = levelText;
@@ -64,7 +64,7 @@ public class ShareCardGenerator : MonoBehaviour
         if (shareCardScoreText != null)
         {
             string starStr = "";
-            for (int i = 0; i < stars; i++) starStr += "⭐";
+            for (int i = 0; i < stars; i++) starStr += "*";
             shareCardScoreText.text = starStr;
         }
 

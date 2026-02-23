@@ -35,11 +35,11 @@ public class LevelCompleteManager : MonoBehaviour
 
     // Pitou celebration texts
     private static readonly string[] CelebrationTexts = {
-        "Amazing! 🐱",
-        "Wow! 🌟",
-        "Purr-fect! 😻",
-        "Nailed it! 🎯",
-        "Meow-velous! ✨"
+        "Amazing! (=^.^=)",
+        "Wow! *",
+        "Purr-fect! :3",
+        "Nailed it! !",
+        "Meow-velous! ~"
     };
 
     private int currentLevelId;

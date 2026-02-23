@@ -247,7 +247,7 @@ public class StreakManager : MonoBehaviour
     private void UpdateUI()
     {
         if (streakCountText != null)
-            streakCountText.text = $"🔥 {currentStreak}";
+            streakCountText.text = $"! {currentStreak}";
 
         if (streakRewardText != null)
         {

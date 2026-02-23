@@ -90,7 +90,7 @@ public class TutorialManager : MonoBehaviour
         {
             new TutorialStep
             {
-                pitouMessage = "Hi there! I'm Pitou! 🐱\nLet me show you how to play!",
+                pitouMessage = "Hi there! I'm Pitou! (=^.^=)\nLet me show you how to play!",
                 highlightAll = false,
                 delay = 0.5f,
                 waitForAction = false
@@ -106,7 +106,7 @@ public class TutorialManager : MonoBehaviour
             },
             new TutorialStep
             {
-                pitouMessage = "Great job! 🌟\nNow select tiles that add up\nto the target number!",
+                pitouMessage = "Great job! *\nNow select tiles that add up\nto the target number!",
                 highlightAll = false,
                 delay = 0.3f,
                 waitForAction = false
@@ -121,7 +121,7 @@ public class TutorialManager : MonoBehaviour
             },
             new TutorialStep
             {
-                pitouMessage = "Purr-fect! You're a natural! 😻\nNow solve the puzzle!",
+                pitouMessage = "Purr-fect! You're a natural! :3\nNow solve the puzzle!",
                 delay = 0.3f,
                 waitForAction = false
             }
@@ -147,7 +147,7 @@ public class TutorialManager : MonoBehaviour
             },
             new TutorialStep
             {
-                pitouMessage = "Meow-velous! 🎉\nSwapping helps you create\nthe right patterns!",
+                pitouMessage = "Meow-velous! !\nSwapping helps you create\nthe right patterns!",
                 delay = 0.3f,
                 waitForAction = false
             }
@@ -158,7 +158,7 @@ public class TutorialManager : MonoBehaviour
         {
             new TutorialStep
             {
-                pitouMessage = "Time for patterns! 🧩\nConnect matching tiles!",
+                pitouMessage = "Time for patterns! \nConnect matching tiles!",
                 delay = 0.5f,
                 waitForAction = false
             },
@@ -172,7 +172,7 @@ public class TutorialManager : MonoBehaviour
             },
             new TutorialStep
             {
-                pitouMessage = "Amazing! You've learned\nall the basics! 🌟🐱\nGo solve some puzzles!",
+                pitouMessage = "Amazing! You've learned\nall the basics! *(=^.^=)\nGo solve some puzzles!",
                 delay = 0.3f,
                 waitForAction = false
             }
