@@ -37,6 +37,6 @@ public class SplashScreen : MonoBehaviour
         }
 
         // Load main menu
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("Gameplay");
     }
 }
