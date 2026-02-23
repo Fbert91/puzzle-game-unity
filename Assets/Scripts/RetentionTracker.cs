@@ -247,7 +247,7 @@ public class RetentionTracker : MonoBehaviour
         SaveUserProfile();
         SaveSessionHistory();
 
-        Debug.Log($"[RetentionTracker] Session ended - Duration: {currentSession.sessionDurationSeconds}s, Levels: {currentSession.levelsComplayed}/{currentSession.levelsPlayed}");
+        Debug.Log($"[RetentionTracker] Session ended - Duration: {currentSession.sessionDurationSeconds}s, Levels: {currentSession.levelsCompleted}/{currentSession.levelsPlayed}");
     }
 
     /// <summary>
