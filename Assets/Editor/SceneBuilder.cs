@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEditor;
+using UnityEditor.Events;
 using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -7,38 +8,39 @@ using UnityEngine.EventSystems;
 using TMPro;
 
 /// <summary>
-/// BrainBlast Scene Builder v2 — builds all scenes matching the v2 UI mockup design.
-/// Purple gradient theme, Pitou mascot, bottom nav, daily streak, world progress.
+/// BrainBlast Scene Builder v3 — Complete rewrite.
+/// Fixes: proper CanvasScaler, SerializedObject wiring, no Unicode emoji, tutorial overlay, settings back button.
 /// Menu: BrainBlast > Build All Scenes
 /// </summary>
 public class SceneBuilder
 {
     // ── Color Palette ──
-    private static readonly Color BgDarkNavy    = new Color(0.102f, 0.102f, 0.180f, 1f); // #1a1a2e
-    private static readonly Color BgMidNavy     = new Color(0.086f, 0.129f, 0.243f, 1f); // #16213e
-    private static readonly Color BgDeepBlue    = new Color(0.059f, 0.204f, 0.376f, 1f); // #0f3460
-    private static readonly Color PurpleAccent  = new Color(0.486f, 0.227f, 0.929f, 1f); // #7c3aed
-    private static readonly Color PurpleLight   = new Color(0.545f, 0.361f, 0.965f, 1f); // #8b5cf6
-    private static readonly Color YellowGold    = new Color(0.945f, 0.769f, 0.059f, 1f); // #f1c40f
-    private static readonly Color YellowDark    = new Color(0.902f, 0.722f, 0f, 1f);     // #e6b800
-    private static readonly Color Orange        = new Color(0.953f, 0.612f, 0.071f, 1f); // #f39c12
-    private static readonly Color GreenBright   = new Color(0.180f, 0.800f, 0.443f, 1f); // #2ecc71
-    private static readonly Color GreenDark     = new Color(0.153f, 0.682f, 0.376f, 1f); // #27ae60
-    private static readonly Color BlueBright    = new Color(0.204f, 0.596f, 0.859f, 1f); // #3498db
-    private static readonly Color RedAccent     = new Color(0.914f, 0.271f, 0.376f, 1f); // #e94560
-    private static readonly Color White         = Color.white;
-    private static readonly Color WhiteSec      = new Color(1f, 1f, 1f, 0.6f);           // secondary text
-    private static readonly Color SemiBlack     = new Color(0f, 0f, 0f, 0.4f);
-    private static readonly Color CardBg        = new Color(1f, 1f, 1f, 0.08f);
-    private static readonly Color DarkOverlay   = new Color(0f, 0f, 0f, 0.7f);
+    private static readonly Color DarkBg       = HexColor("#1A1A2E");
+    private static readonly Color Purple       = HexColor("#7C3AED");
+    private static readonly Color LightPurple  = HexColor("#8B5CF6");
+    private static readonly Color YellowGold   = HexColor("#F1C40F");
+    private static readonly Color Green        = HexColor("#2ECC71");
+    private static readonly Color Blue         = HexColor("#3498DB");
+    private static readonly Color Red          = HexColor("#E94560");
+    private static readonly Color DarkCard     = HexColor("#2D2D4E");
+    private static readonly Color TextWhite    = Color.white;
+    private static readonly Color TextSecondary = HexColor("#AAAACC");
+    private static readonly Color DimBlack     = new Color(0, 0, 0, 0.7f);
 
-    // Gameplay background
-    private static readonly Color GameBgDark    = new Color(0.059f, 0.047f, 0.161f, 1f); // #0f0c29
+    private static Color HexColor(string hex)
+    {
+        ColorUtility.TryParseHtmlString(hex, out Color c);
+        return c;
+    }
+
+    // ── Reference resolution ──
+    private const float REF_W = 1080f;
+    private const float REF_H = 1920f;
 
     [MenuItem("BrainBlast/Build All Scenes")]
     public static void BuildAllScenes()
     {
-        if (!EditorUtility.DisplayDialog("BrainBlast Scene Builder v2",
+        if (!EditorUtility.DisplayDialog("BrainBlast Scene Builder v3",
             "This will overwrite all scene files in Assets/Scenes/. Continue?", "Build", "Cancel"))
             return;
 
@@ -48,671 +50,659 @@ public class SceneBuilder
         BuildMainMenu();
         BuildGameplay();
         BuildSettings();
-        FixBuildSettings();
 
         AssetDatabase.Refresh();
-        EditorUtility.DisplayDialog("Done", "All 4 scenes built (v2 mockup design)!\nBuild settings updated.", "OK");
+        EditorUtility.DisplayDialog("Done", "All scenes built successfully!", "OK");
     }
 
-    // ═══════════════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════════
     // SPLASH SCREEN
-    // ═══════════════════════════════════════════════════
-    [MenuItem("BrainBlast/Build Scenes/1 - SplashScreen")]
+    // ════════════════════════════════════════════════════════════════
+    [MenuItem("BrainBlast/Build Splash Screen")]
     public static void BuildSplashScreen()
     {
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-        CreateCamera(BgDarkNavy);
-        var canvas = CreateCanvas("SplashCanvas");
-        var cg = canvas.AddComponent<CanvasGroup>();
 
-        // Background panel (full screen dark gradient approximation)
-        var bg = CreateStretchPanel(canvas.transform, "Background", BgDarkNavy);
+        CreateCamera(DarkBg);
+        CreateEventSystem();
+        var canvas = CreateCanvas("SplashCanvas");
+
+        // Background
+        var bg = CreateImage(canvas.transform, "Background", DarkBg);
+        StretchFull(bg.rectTransform);
+
+        // CanvasGroup on a center container
+        var center = CreateEmpty(canvas.transform, "CenterGroup");
+        StretchFull(center.GetComponent<RectTransform>());
+        var cg = center.AddComponent<CanvasGroup>();
+        cg.alpha = 1f;
 
         // Logo placeholder
-        var logo = CreateImage(canvas.transform, "LogoImage", new Vector2(0, 100), new Vector2(300, 300));
-        logo.GetComponent<Image>().color = new Color(0.49f, 0.23f, 0.93f, 0.5f);
+        var logo = CreateImage(center.transform, "Logo", Purple);
+        SetAnchors(logo.rectTransform, 0.5f, 0.5f, 0.5f, 0.5f);
+        logo.rectTransform.sizeDelta = new Vector2(300, 300);
 
-        // Studio name
-        CreateTMPText(canvas.transform, "StudioText", "Pito Games", 40, WhiteSec, new Vector2(0, -80));
-
-        // Title
-        var title = CreateTMPText(canvas.transform, "TitleText", "BrainBlast", 72, White, new Vector2(0, -160));
-        title.GetComponent<TextMeshProUGUI>().fontStyle = FontStyles.Bold;
-
-        // Subtitle
-        CreateTMPText(canvas.transform, "SubtitleText", "PUZZLE ADVENTURE", 24, PurpleLight, new Vector2(0, -220));
+        // Title text
+        var title = CreateTMP(center.transform, "TitleText", "BrainBlast", 64, TextWhite, TextAlignmentOptions.Center);
+        SetAnchors(title.rectTransform, 0.5f, 0.5f, 0.5f, 0.5f);
+        title.rectTransform.sizeDelta = new Vector2(800, 100);
+        title.rectTransform.anchoredPosition = new Vector2(0, -220);
 
         // SplashScreen script
-        var splash = canvas.AddComponent<SplashScreen>();
-        var so = new SerializedObject(splash);
-        so.FindProperty("logoImage").objectReferenceValue = logo.GetComponent<Image>();
+        var splashComp = center.AddComponent<SplashScreen>();
+        var so = new SerializedObject(splashComp);
+        so.FindProperty("logoImage").objectReferenceValue = logo;
         so.FindProperty("canvasGroup").objectReferenceValue = cg;
-        so.ApplyModifiedPropertiesWithoutUndo();
+        so.ApplyModifiedProperties();
 
-        CreateEventSystem();
-        EditorSceneManager.SaveScene(scene, "Assets/Scenes/SplashScreen.unity");
-        Debug.Log("[SceneBuilder] SplashScreen built (v2).");
+        SaveScene(scene, "Assets/Scenes/SplashScreen.unity");
     }
 
-    // ═══════════════════════════════════════════════════
-    // MAIN MENU  (v2 mockup)
-    // ═══════════════════════════════════════════════════
-    [MenuItem("BrainBlast/Build Scenes/2 - MainMenu")]
+    // ════════════════════════════════════════════════════════════════
+    // MAIN MENU
+    // ════════════════════════════════════════════════════════════════
+    [MenuItem("BrainBlast/Build Main Menu")]
     public static void BuildMainMenu()
     {
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-        CreateCamera(BgDarkNavy);
+
+        CreateCamera(DarkBg);
+        CreateEventSystem();
         var canvas = CreateCanvas("MainMenuCanvas");
 
-        // ── Full-screen background ──
-        CreateStretchPanel(canvas.transform, "Background", BgDarkNavy);
+        // Background
+        var bg = CreateImage(canvas.transform, "Background", DarkBg);
+        StretchFull(bg.rectTransform);
 
-        // ── Top Bar: Currency + Icons ──
-        var topBar = CreateAnchoredPanel(canvas.transform, "TopBar",
-            new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1),
-            new Vector2(0, 0), new Vector2(0, 100));
-        topBar.GetComponent<Image>().color = new Color(0, 0, 0, 0f); // transparent
+        // ── Layout: vertical center area ──
+        // Title area — top 30%
+        var titleText = CreateTMP(canvas.transform, "TitleText", "BrainBlast", 80, TextWhite, TextAlignmentOptions.Center);
+        titleText.fontStyle = FontStyles.Bold;
+        SetAnchors(titleText.rectTransform, 0.1f, 0.78f, 0.9f, 0.88f);
+        titleText.rectTransform.offsetMin = Vector2.zero;
+        titleText.rectTransform.offsetMax = Vector2.zero;
 
-        // Gems display
-        var gemsPanel = CreateImage(topBar.transform, "GemsPanel", new Vector2(-360, -50), new Vector2(200, 50));
-        gemsPanel.GetComponent<Image>().color = CardBg;
-        var gemsIcon = CreateTMPText(gemsPanel.transform, "GemsIcon", "💎", 22, White, new Vector2(-70, 0));
-        var gemsText = CreateTMPText(gemsPanel.transform, "GemsText", "2,450", 22, White, new Vector2(10, 0));
-        var addGemsBtn = CreateIconButton(gemsPanel.transform, "AddGemsBtn", "+", new Vector2(85, 0), new Vector2(36, 36), GreenBright);
+        var subtitle = CreateTMP(canvas.transform, "SubtitleText", "Train Your Brain!", 36, TextSecondary, TextAlignmentOptions.Center);
+        SetAnchors(subtitle.rectTransform, 0.1f, 0.72f, 0.9f, 0.78f);
+        subtitle.rectTransform.offsetMin = Vector2.zero;
+        subtitle.rectTransform.offsetMax = Vector2.zero;
 
-        // Right icons
-        var bellBtn = CreateIconButton(topBar.transform, "NotificationBtn", "🔔", new Vector2(360, -50), new Vector2(50, 50), new Color(1, 1, 1, 0f));
-        var settingsBtn = CreateIconButton(topBar.transform, "SettingsButton", "⚙", new Vector2(430, -50), new Vector2(50, 50), new Color(1, 1, 1, 0f));
+        // Pitou mascot placeholder (colored circle)
+        var pitouCircle = CreateImage(canvas.transform, "PitouMascot", LightPurple);
+        SetAnchors(pitouCircle.rectTransform, 0.5f, 0.5f, 0.5f, 0.5f);
+        pitouCircle.rectTransform.sizeDelta = new Vector2(200, 200);
+        pitouCircle.rectTransform.anchoredPosition = new Vector2(0, 150);
 
-        // ── Pitou Mascot + Speech Bubble ──
-        var mascot = CreateImage(canvas.transform, "PitouMascot", new Vector2(0, 550), new Vector2(220, 220));
-        mascot.GetComponent<Image>().color = new Color(0.55f, 0.36f, 0.97f, 0.6f); // purple placeholder
+        // Buttons container — center area
+        var btnContainer = CreateEmpty(canvas.transform, "ButtonContainer");
+        var btnRect = btnContainer.GetComponent<RectTransform>();
+        SetAnchors(btnRect, 0.15f, 0.28f, 0.85f, 0.52f);
+        btnRect.offsetMin = Vector2.zero;
+        btnRect.offsetMax = Vector2.zero;
 
-        var speechBubble = CreateImage(canvas.transform, "SpeechBubble", new Vector2(180, 620), new Vector2(320, 70));
-        speechBubble.GetComponent<Image>().color = CardBg;
-        CreateTMPText(speechBubble.transform, "SpeechText", "Ready to blast some puzzles?", 16, White, Vector2.zero);
+        var vlg = btnContainer.AddComponent<VerticalLayoutGroup>();
+        vlg.spacing = 30;
+        vlg.childAlignment = TextAnchor.MiddleCenter;
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = true;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = true;
 
-        // ── Title ──
-        var titleGo = CreateTMPText(canvas.transform, "TitleText", "BrainBlast", 80, White, new Vector2(0, 380));
-        titleGo.GetComponent<TextMeshProUGUI>().fontStyle = FontStyles.Bold;
-        CreateTMPText(canvas.transform, "SubtitleText", "PUZZLE ADVENTURE", 22, PurpleLight, new Vector2(0, 320));
+        // Play Button
+        var playBtn = CreateButton(btnContainer.transform, "PlayButton", "Play", 42, Purple, TextWhite);
+        var playLE = playBtn.gameObject.AddComponent<LayoutElement>();
+        playLE.preferredHeight = 120;
 
-        // ── Daily Streak Card ──
-        var streakCard = CreateImage(canvas.transform, "DailyStreakCard", new Vector2(0, 200), new Vector2(900, 120));
-        streakCard.GetComponent<Image>().color = CardBg;
+        // Levels Button
+        var levelsBtn = CreateButton(btnContainer.transform, "LevelsButton", "Levels", 36, DarkCard, TextWhite);
+        var levelsLE = levelsBtn.gameObject.AddComponent<LayoutElement>();
+        levelsLE.preferredHeight = 100;
 
-        CreateTMPText(streakCard.transform, "StreakIcon", "🔥", 36, White, new Vector2(-350, 10));
-        CreateTMPText(streakCard.transform, "StreakTitle", "Daily Streak", 22, WhiteSec, new Vector2(-200, 20));
-        var streakDays = CreateTMPText(streakCard.transform, "StreakDays", "5 Days!", 32, YellowGold, new Vector2(-200, -15));
-        streakDays.GetComponent<TextMeshProUGUI>().fontStyle = FontStyles.Bold;
+        // Settings Button
+        var settingsBtn = CreateButton(btnContainer.transform, "SettingsButton", "Settings", 36, DarkCard, TextWhite);
+        var settingsLE = settingsBtn.gameObject.AddComponent<LayoutElement>();
+        settingsLE.preferredHeight = 100;
 
-        var claimBtn = CreateStyledButton(streakCard.transform, "ClaimButton", "CLAIM", new Vector2(320, 0), new Vector2(160, 56), GreenBright, White);
+        // Footer
+        var footer = CreateTMP(canvas.transform, "FooterText", "v1.0 - Made with love", 24, TextSecondary, TextAlignmentOptions.Center);
+        SetAnchors(footer.rectTransform, 0.1f, 0.03f, 0.9f, 0.07f);
+        footer.rectTransform.offsetMin = Vector2.zero;
+        footer.rectTransform.offsetMax = Vector2.zero;
 
-        // Progress dots
-        for (int i = 0; i < 7; i++)
-        {
-            var dot = CreateImage(streakCard.transform, $"Dot{i}", new Vector2(-100 + i * 40, -45), new Vector2(24, 24));
-            dot.GetComponent<Image>().color = i < 5 ? YellowGold : new Color(1, 1, 1, 0.2f);
-        }
+        // MainMenuUI script
+        var menuComp = canvas.gameObject.AddComponent<MainMenuUI>();
+        var so = new SerializedObject(menuComp);
+        so.FindProperty("playButton").objectReferenceValue = playBtn;
+        so.FindProperty("settingsButton").objectReferenceValue = settingsBtn;
+        so.FindProperty("levelsButton").objectReferenceValue = levelsBtn;
+        so.ApplyModifiedProperties();
 
-        // ── PLAY Button ──
-        var playBtn = CreateStyledButton(canvas.transform, "PlayButton", "▶  PLAY", new Vector2(0, 20), new Vector2(800, 100), PurpleAccent, White);
-        var playLabel = playBtn.GetComponentInChildren<TextMeshProUGUI>();
-        playLabel.fontSize = 42;
-        playLabel.fontStyle = FontStyles.Bold;
-
-        CreateTMPText(canvas.transform, "PlaySubtitle", "Level 47 — Ocean World", 18, WhiteSec, new Vector2(0, -45));
-
-        // ── Tabs: Worlds / Daily / Events ──
-        float tabY = -110;
-        var worldsTab = CreateStyledButton(canvas.transform, "WorldsTab", "🌍  Worlds", new Vector2(-300, tabY), new Vector2(260, 56), PurpleLight, White);
-        var dailyTab = CreateStyledButton(canvas.transform, "DailyTab", "📅  Daily", new Vector2(0, tabY), new Vector2(260, 56), CardBg, WhiteSec);
-        var eventsTab = CreateStyledButton(canvas.transform, "EventsTab", "🎉  Events", new Vector2(300, tabY), new Vector2(260, 56), CardBg, WhiteSec);
-
-        // ── World Progress Card ──
-        var worldCard = CreateImage(canvas.transform, "WorldProgressCard", new Vector2(0, -220), new Vector2(900, 130));
-        worldCard.GetComponent<Image>().color = CardBg;
-
-        CreateTMPText(worldCard.transform, "WorldIcon", "🌊", 36, White, new Vector2(-370, 0));
-        CreateTMPText(worldCard.transform, "WorldName", "Ocean World", 26, White, new Vector2(-180, 15));
-        CreateTMPText(worldCard.transform, "WorldStars", "⭐ 127 / 150", 18, YellowGold, new Vector2(-180, -15));
-
-        // Progress bar background
-        var progBg = CreateImage(worldCard.transform, "ProgressBg", new Vector2(150, -10), new Vector2(350, 16));
-        progBg.GetComponent<Image>().color = new Color(1, 1, 1, 0.1f);
-        // Progress bar fill
-        var progFill = CreateImage(progBg.transform, "ProgressFill", Vector2.zero, Vector2.zero);
-        var progFillRT = progFill.GetComponent<RectTransform>();
-        progFillRT.anchorMin = Vector2.zero;
-        progFillRT.anchorMax = new Vector2(0.85f, 1f);
-        progFillRT.offsetMin = Vector2.zero;
-        progFillRT.offsetMax = Vector2.zero;
-        progFill.GetComponent<Image>().color = PurpleAccent;
-
-        // ── Bottom Nav Bar ──
-        var navBar = CreateAnchoredPanel(canvas.transform, "BottomNavBar",
-            new Vector2(0, 0), new Vector2(1, 0), new Vector2(0.5f, 0),
-            new Vector2(0, 0), new Vector2(0, 130));
-        navBar.GetComponent<Image>().color = new Color(0.06f, 0.06f, 0.12f, 0.95f);
-
-        string[] navIcons = { "🏠", "🛒", "🐱", "📊" };
-        string[] navLabels = { "Home", "Shop", "Pitou", "Stats" };
-        float navSpacing = 220f;
-        float navStartX = -navSpacing * 1.5f;
-        for (int i = 0; i < 4; i++)
-        {
-            float x = navStartX + i * navSpacing;
-            CreateTMPText(navBar.transform, $"NavIcon{i}", navIcons[i], 32, i == 0 ? PurpleLight : WhiteSec, new Vector2(x, 20));
-            CreateTMPText(navBar.transform, $"NavLabel{i}", navLabels[i], 16, i == 0 ? PurpleLight : WhiteSec, new Vector2(x, -15));
-        }
-
-        // ── Wire MainMenuUI (expects playButton, settingsButton, levelsButton) ──
-        var menuUI = canvas.AddComponent<MainMenuUI>();
-        var so = new SerializedObject(menuUI);
-        so.FindProperty("playButton").objectReferenceValue = playBtn.GetComponent<Button>();
-        so.FindProperty("settingsButton").objectReferenceValue = settingsBtn.GetComponent<Button>();
-        so.FindProperty("levelsButton").objectReferenceValue = worldsTab.GetComponent<Button>();
-        so.ApplyModifiedPropertiesWithoutUndo();
-
-        CreateEventSystem();
-        EditorSceneManager.SaveScene(scene, "Assets/Scenes/MainMenu.unity");
-        Debug.Log("[SceneBuilder] MainMenu built (v2).");
+        SaveScene(scene, "Assets/Scenes/MainMenu.unity");
     }
 
-    // ═══════════════════════════════════════════════════
-    // GAMEPLAY  (v2 mockup)
-    // ═══════════════════════════════════════════════════
-    [MenuItem("BrainBlast/Build Scenes/3 - Gameplay")]
+    // ════════════════════════════════════════════════════════════════
+    // GAMEPLAY
+    // ════════════════════════════════════════════════════════════════
+    [MenuItem("BrainBlast/Build Gameplay")]
     public static void BuildGameplay()
     {
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-        CreateCamera(GameBgDark);
+
+        CreateCamera(DarkBg);
+        CreateEventSystem();
         var canvas = CreateCanvas("GameplayCanvas");
 
-        // ── Background ──
-        CreateStretchPanel(canvas.transform, "Background", GameBgDark);
+        // Background
+        var bg = CreateImage(canvas.transform, "Background", DarkBg);
+        StretchFull(bg.rectTransform);
 
-        // ── Top HUD Bar ──
-        var topBar = CreateAnchoredPanel(canvas.transform, "TopBar",
-            new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1),
-            Vector2.zero, new Vector2(0, 100));
-        topBar.GetComponent<Image>().color = SemiBlack;
+        // ── TOP BAR ── anchors: top 8%
+        var topBar = CreateImage(canvas.transform, "TopBar", DarkCard);
+        SetAnchors(topBar.rectTransform, 0f, 0.92f, 1f, 1f);
+        topBar.rectTransform.offsetMin = Vector2.zero;
+        topBar.rectTransform.offsetMax = Vector2.zero;
 
-        var backBtn = CreateStyledButton(topBar.transform, "BackButton", "←", new Vector2(-440, -50), new Vector2(70, 60), new Color(1, 1, 1, 0.15f), White);
-        backBtn.GetComponentInChildren<TextMeshProUGUI>().fontSize = 36;
+        // Back button (top-left)
+        var backBtn = CreateButton(topBar.transform, "BackButton", "<", 36, Red, TextWhite);
+        SetAnchors(backBtn.GetComponent<RectTransform>(), 0f, 0f, 0f, 1f);
+        backBtn.GetComponent<RectTransform>().sizeDelta = new Vector2(100, 0);
+        backBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(50, 0);
 
-        var levelTxt = CreateTMPText(topBar.transform, "LevelText", "Level 3", 30, White, new Vector2(0, -50));
-        levelTxt.GetComponent<TextMeshProUGUI>().fontStyle = FontStyles.Bold;
+        // Level text (center-left)
+        var levelText = CreateTMP(topBar.transform, "LevelText", "Level 1", 32, TextWhite, TextAlignmentOptions.Center);
+        SetAnchors(levelText.rectTransform, 0.12f, 0f, 0.35f, 1f);
+        levelText.rectTransform.offsetMin = Vector2.zero;
+        levelText.rectTransform.offsetMax = Vector2.zero;
 
-        var scoreTxt = CreateTMPText(topBar.transform, "ScoreText", "Score: 450", 26, YellowGold, new Vector2(360, -50));
+        // Timer text (center)
+        var timerText = CreateTMP(topBar.transform, "TimerText", "Time: 0:00", 28, YellowGold, TextAlignmentOptions.Center);
+        SetAnchors(timerText.rectTransform, 0.35f, 0f, 0.65f, 1f);
+        timerText.rectTransform.offsetMin = Vector2.zero;
+        timerText.rectTransform.offsetMax = Vector2.zero;
 
-        // ── Timer (below top bar) ──
-        var timerTxt = CreateTMPText(canvas.transform, "TimerText", "0:00", 22, WhiteSec, new Vector2(0, 820));
+        // Score text (right)
+        var scoreText = CreateTMP(topBar.transform, "ScoreText", "Score: 0", 28, Green, TextAlignmentOptions.Center);
+        SetAnchors(scoreText.rectTransform, 0.65f, 0f, 1f, 1f);
+        scoreText.rectTransform.offsetMin = Vector2.zero;
+        scoreText.rectTransform.offsetMax = Vector2.zero;
 
-        // ── Board Area (5x5 grid) ──
-        var boardPanel = CreateImage(canvas.transform, "BoardPanel", new Vector2(0, 150), new Vector2(940, 940));
-        boardPanel.GetComponent<Image>().color = new Color(1, 1, 1, 0.03f);
-        var boardRenderer = boardPanel.AddComponent<BoardRenderer>();
+        // ── RULE TEXT ── below top bar
+        var ruleText = CreateTMP(canvas.transform, "RuleText", "Select tiles that sum to 10!", 30, YellowGold, TextAlignmentOptions.Center);
+        ruleText.fontStyle = FontStyles.Bold;
+        SetAnchors(ruleText.rectTransform, 0.05f, 0.87f, 0.95f, 0.92f);
+        ruleText.rectTransform.offsetMin = Vector2.zero;
+        ruleText.rectTransform.offsetMax = Vector2.zero;
 
-        // Create 5x5 tile placeholders
-        Color[] tileColors = {
-            RedAccent, BlueBright, GreenBright, YellowGold, new Color(0.608f, 0.349f, 0.714f) // purple
-        };
-        float cellSize = 160f;
-        float gap = 12f;
-        float gridStart = -(cellSize + gap) * 2f;
-        for (int row = 0; row < 5; row++)
-        {
-            for (int col = 0; col < 5; col++)
-            {
-                float x = gridStart + col * (cellSize + gap);
-                float y = -gridStart - row * (cellSize + gap);
-                int colorIdx = (row + col) % tileColors.Length;
-                // Some empty slots
-                bool isEmpty = (row == 2 && col == 2) || (row == 4 && col == 0);
-                var tile = CreateImage(boardPanel.transform, $"Tile_{col}_{row}", new Vector2(x, y), new Vector2(cellSize, cellSize));
-                if (isEmpty)
-                    tile.GetComponent<Image>().color = new Color(1, 1, 1, 0.05f);
-                else
-                    tile.GetComponent<Image>().color = tileColors[colorIdx];
-            }
-        }
+        // ── STATS BAR ── moves + combo
+        var statsBar = CreateEmpty(canvas.transform, "StatsBar");
+        SetAnchors(statsBar.GetComponent<RectTransform>(), 0.05f, 0.83f, 0.95f, 0.87f);
+        statsBar.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        statsBar.GetComponent<RectTransform>().offsetMax = Vector2.zero;
 
-        // ── Bottom HUD ──
-        var bottomBar = CreateAnchoredPanel(canvas.transform, "BottomBar",
-            new Vector2(0, 0), new Vector2(1, 0), new Vector2(0.5f, 0),
-            Vector2.zero, new Vector2(0, 200));
-        bottomBar.GetComponent<Image>().color = SemiBlack;
+        var movesText = CreateTMP(statsBar.transform, "MovesText", "Moves: 0", 26, TextWhite, TextAlignmentOptions.Left);
+        SetAnchors(movesText.rectTransform, 0f, 0f, 0.5f, 1f);
+        movesText.rectTransform.offsetMin = Vector2.zero;
+        movesText.rectTransform.offsetMax = Vector2.zero;
 
-        // Stats row
-        var movesTxt = CreateTMPText(bottomBar.transform, "MovesText", "Moves: 0", 22, White, new Vector2(-340, 130));
-        var timerStatTxt = CreateTMPText(bottomBar.transform, "TimerStatText", "Time: 0:00", 22, White, new Vector2(0, 130));
-        var comboTxt = CreateTMPText(bottomBar.transform, "ComboText", "", 22, YellowGold, new Vector2(340, 130));
+        var comboText = CreateTMP(statsBar.transform, "ComboText", "", 26, YellowGold, TextAlignmentOptions.Right);
+        SetAnchors(comboText.rectTransform, 0.5f, 0f, 1f, 1f);
+        comboText.rectTransform.offsetMin = Vector2.zero;
+        comboText.rectTransform.offsetMax = Vector2.zero;
 
-        // Hint button (yellow/orange gradient approximation)
-        var hintBtn = CreateStyledButton(bottomBar.transform, "HintButton", "💡 HINT", new Vector2(-180, 50), new Vector2(300, 70), YellowGold, BgDarkNavy);
-        hintBtn.GetComponentInChildren<TextMeshProUGUI>().fontStyle = FontStyles.Bold;
+        // ── BOARD AREA ── center 60% of screen (left for BoardRenderer)
+        var boardArea = CreateEmpty(canvas.transform, "BoardArea");
+        SetAnchors(boardArea.GetComponent<RectTransform>(), 0.05f, 0.2f, 0.95f, 0.83f);
+        boardArea.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        boardArea.GetComponent<RectTransform>().offsetMax = Vector2.zero;
 
-        // Undo button (translucent)
-        var undoBtn = CreateStyledButton(bottomBar.transform, "UndoButton", "↩ UNDO", new Vector2(180, 50), new Vector2(300, 70), new Color(1, 1, 1, 0.15f), White);
+        // ── ACTION BUTTONS ── bottom area
+        var actionBar = CreateEmpty(canvas.transform, "ActionBar");
+        SetAnchors(actionBar.GetComponent<RectTransform>(), 0.05f, 0.1f, 0.95f, 0.18f);
+        actionBar.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        actionBar.GetComponent<RectTransform>().offsetMax = Vector2.zero;
 
-        // ── Level Complete Panel (hidden by default) ──
-        var lcPanel = CreateStretchPanel(canvas.transform, "LevelCompletePanel", DarkOverlay);
+        var hlg = actionBar.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = 30;
+        hlg.childAlignment = TextAnchor.MiddleCenter;
+        hlg.childControlWidth = true;
+        hlg.childControlHeight = true;
+        hlg.childForceExpandWidth = true;
+        hlg.childForceExpandHeight = true;
 
-        var lcTitle = CreateTMPText(lcPanel.transform, "CompleteTitle", "🎉  Level Complete!", 52, YellowGold, new Vector2(0, 300));
-        lcTitle.GetComponent<TextMeshProUGUI>().fontStyle = FontStyles.Bold;
+        var hintBtn = CreateButton(actionBar.transform, "HintButton", "Hint", 28, Blue, TextWhite);
+        var undoBtn = CreateButton(actionBar.transform, "UndoButton", "Undo", 28, DarkCard, TextWhite);
 
-        CreateTMPText(lcPanel.transform, "CompleteScore", "Score: 1000", 30, White, new Vector2(0, 200));
+        // ── LEVEL COMPLETE PANEL ── overlay
+        var lcPanel = CreateImage(canvas.transform, "LevelCompletePanel", new Color(0, 0, 0, 0.8f));
+        StretchFull(lcPanel.rectTransform);
 
-        // Stars row
-        for (int i = 0; i < 3; i++)
-        {
-            CreateTMPText(lcPanel.transform, $"Star{i}", "⭐", 60, YellowGold, new Vector2(-80 + i * 80, 100));
-        }
+        var lcCard = CreateImage(lcPanel.transform, "LCCard", DarkCard);
+        SetAnchors(lcCard.rectTransform, 0.1f, 0.3f, 0.9f, 0.7f);
+        lcCard.rectTransform.offsetMin = Vector2.zero;
+        lcCard.rectTransform.offsetMax = Vector2.zero;
 
-        var nextBtn = CreateStyledButton(lcPanel.transform, "NextLevelButton", "Next Level  →", new Vector2(0, -50), new Vector2(500, 80), PurpleAccent, White);
-        var menuBtn = CreateStyledButton(lcPanel.transform, "MenuButton", "Main Menu", new Vector2(0, -160), new Vector2(500, 80), CardBg, White);
+        var lcTitle = CreateTMP(lcCard.transform, "LCTitle", "Level Complete!", 48, YellowGold, TextAlignmentOptions.Center);
+        SetAnchors(lcTitle.rectTransform, 0.05f, 0.7f, 0.95f, 0.95f);
+        lcTitle.rectTransform.offsetMin = Vector2.zero;
+        lcTitle.rectTransform.offsetMax = Vector2.zero;
 
-        lcPanel.SetActive(false);
+        var lcBtnContainer = CreateEmpty(lcCard.transform, "LCButtons");
+        SetAnchors(lcBtnContainer.GetComponent<RectTransform>(), 0.1f, 0.1f, 0.9f, 0.5f);
+        lcBtnContainer.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        lcBtnContainer.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+        var lcVlg = lcBtnContainer.AddComponent<VerticalLayoutGroup>();
+        lcVlg.spacing = 20;
+        lcVlg.childAlignment = TextAnchor.MiddleCenter;
+        lcVlg.childControlWidth = true;
+        lcVlg.childControlHeight = true;
+        lcVlg.childForceExpandWidth = true;
+        lcVlg.childForceExpandHeight = true;
+
+        var nextLevelBtn = CreateButton(lcBtnContainer.transform, "NextLevelButton", "Next Level", 32, Green, TextWhite);
+        var menuBtn = CreateButton(lcBtnContainer.transform, "MenuButton", "Main Menu", 32, DarkCard, TextWhite);
+
+        lcPanel.gameObject.SetActive(false);
+
+        // ── TUTORIAL OVERLAY ──
+        var tutOverlay = CreateEmpty(canvas.transform, "TutorialOverlay");
+        StretchFull(tutOverlay.GetComponent<RectTransform>());
+
+        // Dim background
+        var dimBg = CreateImage(tutOverlay.transform, "DimBackground", DimBlack);
+        StretchFull(dimBg.rectTransform);
+
+        // Speech bubble
+        var speechBubble = CreateImage(tutOverlay.transform, "SpeechBubble", DarkCard);
+        SetAnchors(speechBubble.rectTransform, 0.1f, 0.55f, 0.9f, 0.72f);
+        speechBubble.rectTransform.offsetMin = Vector2.zero;
+        speechBubble.rectTransform.offsetMax = Vector2.zero;
+
+        var speechText = CreateTMP(speechBubble.transform, "SpeechBubbleText", "", 28, TextWhite, TextAlignmentOptions.Center);
+        StretchFull(speechText.rectTransform);
+        speechText.rectTransform.offsetMin = new Vector2(20, 10);
+        speechText.rectTransform.offsetMax = new Vector2(-20, -10);
+
+        // Highlight frame
+        var highlightFrame = CreateImage(tutOverlay.transform, "HighlightFrame", new Color(1, 1, 0, 0.3f));
+        SetAnchors(highlightFrame.rectTransform, 0.5f, 0.5f, 0.5f, 0.5f);
+        highlightFrame.rectTransform.sizeDelta = new Vector2(150, 150);
+        highlightFrame.gameObject.SetActive(false);
+
+        // Skip button (top-right)
+        var skipBtn = CreateButton(tutOverlay.transform, "SkipButton", "Skip", 24, Red, TextWhite);
+        SetAnchors(skipBtn.GetComponent<RectTransform>(), 1f, 1f, 1f, 1f);
+        skipBtn.GetComponent<RectTransform>().pivot = new Vector2(1, 1);
+        skipBtn.GetComponent<RectTransform>().sizeDelta = new Vector2(150, 60);
+        skipBtn.GetComponent<RectTransform>().anchoredPosition = new Vector2(-20, -20);
+
+        // Get skip button text
+        var skipBtnTextComp = skipBtn.GetComponentInChildren<TextMeshProUGUI>();
+
+        // Tap to continue (bottom center, full-width invisible button)
+        var tapBtn = CreateButton(tutOverlay.transform, "TapToContinueButton", "Tap to continue", 24, new Color(0, 0, 0, 0.01f), TextSecondary);
+        SetAnchors(tapBtn.GetComponent<RectTransform>(), 0f, 0f, 1f, 0.15f);
+        tapBtn.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        tapBtn.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+
+        tutOverlay.SetActive(false);
 
         // ── Wire GameplayUI ──
-        var gpUI = canvas.AddComponent<GameplayUI>();
-        var so = new SerializedObject(gpUI);
-        so.FindProperty("timerText").objectReferenceValue = timerTxt.GetComponent<TextMeshProUGUI>();
-        so.FindProperty("scoreText").objectReferenceValue = scoreTxt.GetComponent<TextMeshProUGUI>();
-        so.FindProperty("levelText").objectReferenceValue = levelTxt.GetComponent<TextMeshProUGUI>();
-        so.FindProperty("backButton").objectReferenceValue = backBtn.GetComponent<Button>();
-        so.FindProperty("movesText").objectReferenceValue = movesTxt.GetComponent<TextMeshProUGUI>();
-        so.FindProperty("comboText").objectReferenceValue = comboTxt.GetComponent<TextMeshProUGUI>();
-        so.FindProperty("hintButton").objectReferenceValue = hintBtn.GetComponent<Button>();
-        so.FindProperty("undoButton").objectReferenceValue = undoBtn.GetComponent<Button>();
-        so.FindProperty("levelCompletePanel").objectReferenceValue = lcPanel;
-        so.FindProperty("nextLevelButton").objectReferenceValue = nextBtn.GetComponent<Button>();
-        so.FindProperty("menuButton").objectReferenceValue = menuBtn.GetComponent<Button>();
-        so.ApplyModifiedPropertiesWithoutUndo();
+        var gameplayUI = canvas.gameObject.AddComponent<GameplayUI>();
+        var gso = new SerializedObject(gameplayUI);
+        gso.FindProperty("timerText").objectReferenceValue = timerText;
+        gso.FindProperty("scoreText").objectReferenceValue = scoreText;
+        gso.FindProperty("levelText").objectReferenceValue = levelText;
+        gso.FindProperty("backButton").objectReferenceValue = backBtn;
+        gso.FindProperty("movesText").objectReferenceValue = movesText;
+        gso.FindProperty("comboText").objectReferenceValue = comboText;
+        gso.FindProperty("hintButton").objectReferenceValue = hintBtn;
+        gso.FindProperty("undoButton").objectReferenceValue = undoBtn;
+        gso.FindProperty("levelCompletePanel").objectReferenceValue = lcPanel.gameObject;
+        gso.FindProperty("nextLevelButton").objectReferenceValue = nextLevelBtn;
+        gso.FindProperty("menuButton").objectReferenceValue = menuBtn;
+        gso.ApplyModifiedProperties();
 
-        // ── Managers ──
-        var initGo = new GameObject("GameInitializer");
-        initGo.AddComponent<GameInitializer>();
+        // ── Wire TutorialManager ──
+        var tutMgr = canvas.gameObject.AddComponent<TutorialManager>();
+        var tso = new SerializedObject(tutMgr);
+        tso.FindProperty("tutorialOverlay").objectReferenceValue = tutOverlay;
+        tso.FindProperty("dimBackground").objectReferenceValue = dimBg;
+        tso.FindProperty("speechBubble").objectReferenceValue = speechBubble.gameObject;
+        tso.FindProperty("speechBubbleText").objectReferenceValue = speechText.GetComponent<TextMeshProUGUI>() != null ? null : speechText.gameObject.GetComponent<UnityEngine.UI.Text>();
+        tso.FindProperty("highlightFrame").objectReferenceValue = highlightFrame.gameObject;
+        tso.FindProperty("skipButton").objectReferenceValue = skipBtn;
+        tso.FindProperty("skipButtonText").objectReferenceValue = skipBtnTextComp != null ? null : null;
+        tso.FindProperty("tapToContinueButton").objectReferenceValue = tapBtn;
+        tso.ApplyModifiedProperties();
 
-        var puzzleGo = new GameObject("PuzzleGame");
-        puzzleGo.AddComponent<PuzzleGame>();
+        // Wait — TutorialManager uses UnityEngine.UI.Text for speechBubbleText and skipButtonText
+        // Let me re-check: the TutorialManager has Text (not TMP) fields. Need to add legacy Text components.
+        // Actually, looking at TutorialManager: speechBubbleText is UnityEngine.UI.Text, skipButtonText is UnityEngine.UI.Text
+        // So we need to add legacy Text components alongside or instead of TMP for those specific fields.
 
-        var uiMgrGo = new GameObject("UIManager");
-        uiMgrGo.AddComponent<UIManager>();
+        // Fix: Add legacy Text to speech bubble for TutorialManager compatibility
+        var legacySpeechText = speechBubble.gameObject.AddComponent<UnityEngine.UI.Text>();
+        legacySpeechText.text = "";
+        legacySpeechText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        legacySpeechText.fontSize = 28;
+        legacySpeechText.color = TextWhite;
+        legacySpeechText.alignment = TextAnchor.MiddleCenter;
 
-        var lcMgrGo = new GameObject("LevelCompleteManager");
-        var lcMgr = lcMgrGo.AddComponent<LevelCompleteManager>();
-        var lcSo = new SerializedObject(lcMgr);
-        lcSo.FindProperty("celebrationPanel").objectReferenceValue = lcPanel;
-        lcSo.FindProperty("continueButton").objectReferenceValue = nextBtn.GetComponent<Button>();
-        lcSo.FindProperty("homeButton").objectReferenceValue = menuBtn.GetComponent<Button>();
-        lcSo.ApplyModifiedPropertiesWithoutUndo();
+        // Add legacy Text to skip button for skipButtonText
+        // The skip button already has TMP text child; add a legacy text too
+        var skipLegacyTextObj = new GameObject("SkipLegacyText");
+        skipLegacyTextObj.transform.SetParent(skipBtn.transform, false);
+        var skipLegacyText = skipLegacyTextObj.AddComponent<UnityEngine.UI.Text>();
+        skipLegacyText.text = "Skip";
+        skipLegacyText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        skipLegacyText.fontSize = 24;
+        skipLegacyText.color = TextWhite;
+        skipLegacyText.alignment = TextAnchor.MiddleCenter;
+        var skipLegacyRect = skipLegacyTextObj.GetComponent<RectTransform>();
+        StretchFull(skipLegacyRect);
+        skipLegacyTextObj.SetActive(false); // hidden, just for reference
 
-        CreateEventSystem();
-        EditorSceneManager.SaveScene(scene, "Assets/Scenes/Gameplay.unity");
-        Debug.Log("[SceneBuilder] Gameplay built (v2).");
+        // Re-wire TutorialManager with correct types
+        tso = new SerializedObject(tutMgr);
+        tso.FindProperty("tutorialOverlay").objectReferenceValue = tutOverlay;
+        tso.FindProperty("dimBackground").objectReferenceValue = dimBg;
+        tso.FindProperty("speechBubble").objectReferenceValue = speechBubble.gameObject;
+        tso.FindProperty("speechBubbleText").objectReferenceValue = legacySpeechText;
+        tso.FindProperty("highlightFrame").objectReferenceValue = highlightFrame.gameObject;
+        tso.FindProperty("skipButton").objectReferenceValue = skipBtn;
+        tso.FindProperty("skipButtonText").objectReferenceValue = skipLegacyText;
+        tso.FindProperty("tapToContinueButton").objectReferenceValue = tapBtn;
+        tso.ApplyModifiedProperties();
+
+        SaveScene(scene, "Assets/Scenes/Gameplay.unity");
     }
 
-    // ═══════════════════════════════════════════════════
-    // SETTINGS  (v2 mockup)
-    // ═══════════════════════════════════════════════════
-    [MenuItem("BrainBlast/Build Scenes/4 - Settings")]
+    // ════════════════════════════════════════════════════════════════
+    // SETTINGS
+    // ════════════════════════════════════════════════════════════════
+    [MenuItem("BrainBlast/Build Settings")]
     public static void BuildSettings()
     {
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-        CreateCamera(BgDarkNavy);
+
+        CreateCamera(DarkBg);
+        CreateEventSystem();
         var canvas = CreateCanvas("SettingsCanvas");
 
         // Background
-        CreateStretchPanel(canvas.transform, "Background", BgDarkNavy);
+        var bg = CreateImage(canvas.transform, "Background", DarkBg);
+        StretchFull(bg.rectTransform);
 
-        // ── Top: Back arrow + title ──
-        var topBar = CreateAnchoredPanel(canvas.transform, "TopBar",
-            new Vector2(0, 1), new Vector2(1, 1), new Vector2(0.5f, 1),
-            Vector2.zero, new Vector2(0, 120));
-        topBar.GetComponent<Image>().color = new Color(0, 0, 0, 0f);
+        // Title
+        var title = CreateTMP(canvas.transform, "TitleText", "Settings", 56, TextWhite, TextAlignmentOptions.Center);
+        title.fontStyle = FontStyles.Bold;
+        SetAnchors(title.rectTransform, 0.1f, 0.85f, 0.9f, 0.93f);
+        title.rectTransform.offsetMin = Vector2.zero;
+        title.rectTransform.offsetMax = Vector2.zero;
 
-        var backBtn = CreateStyledButton(topBar.transform, "BackButton", "←", new Vector2(-430, -60), new Vector2(70, 60), new Color(1, 1, 1, 0.15f), White);
-        backBtn.GetComponentInChildren<TextMeshProUGUI>().fontSize = 36;
+        // Settings card
+        var card = CreateImage(canvas.transform, "SettingsCard", DarkCard);
+        SetAnchors(card.rectTransform, 0.08f, 0.4f, 0.92f, 0.82f);
+        card.rectTransform.offsetMin = Vector2.zero;
+        card.rectTransform.offsetMax = Vector2.zero;
 
-        var titleTxt = CreateTMPText(topBar.transform, "SettingsTitle", "Settings", 42, White, new Vector2(0, -60));
-        titleTxt.GetComponent<TextMeshProUGUI>().fontStyle = FontStyles.Bold;
+        // SFX Volume
+        var sfxLabel = CreateTMP(card.transform, "SFXLabel", "SFX Volume", 28, TextWhite, TextAlignmentOptions.Left);
+        SetAnchors(sfxLabel.rectTransform, 0.05f, 0.78f, 0.95f, 0.92f);
+        sfxLabel.rectTransform.offsetMin = Vector2.zero;
+        sfxLabel.rectTransform.offsetMax = Vector2.zero;
 
-        // ── Wire Back button to SceneLoader.LoadMainMenu ──
-        var sceneLoader = canvas.AddComponent<SceneLoader>();
-        var backBtnComp = backBtn.GetComponent<Button>();
-        UnityEditor.Events.UnityEventTools.AddPersistentListener(backBtnComp.onClick, sceneLoader.LoadMainMenu);
+        var sfxSlider = CreateSlider(card.transform, "SFXVolumeSlider", 0.7f);
+        SetAnchors(sfxSlider.GetComponent<RectTransform>(), 0.05f, 0.64f, 0.95f, 0.78f);
+        sfxSlider.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        sfxSlider.GetComponent<RectTransform>().offsetMax = Vector2.zero;
 
-        // Content area
-        float startY = 680;
-        float rowH = 140;
-        int row = 0;
+        // Music Volume
+        var musicLabel = CreateTMP(card.transform, "MusicLabel", "Music Volume", 28, TextWhite, TextAlignmentOptions.Left);
+        SetAnchors(musicLabel.rectTransform, 0.05f, 0.48f, 0.95f, 0.62f);
+        musicLabel.rectTransform.offsetMin = Vector2.zero;
+        musicLabel.rectTransform.offsetMax = Vector2.zero;
 
-        // ── Music Volume ──
-        CreateTMPText(canvas.transform, "MusicLabel", "🎵  Music Volume", 28, White, new Vector2(-150, startY - rowH * row));
-        var musicSlider = CreateThemedSlider(canvas.transform, "MusicVolumeSlider", new Vector2(0, startY - rowH * row - 50), BlueBright);
-        row++;
+        var musicSlider = CreateSlider(card.transform, "MusicVolumeSlider", 0.5f);
+        SetAnchors(musicSlider.GetComponent<RectTransform>(), 0.05f, 0.34f, 0.95f, 0.48f);
+        musicSlider.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        musicSlider.GetComponent<RectTransform>().offsetMax = Vector2.zero;
 
-        // ── SFX Volume ──
-        CreateTMPText(canvas.transform, "SFXLabel", "🔊  SFX Volume", 28, White, new Vector2(-170, startY - rowH * row));
-        var sfxSlider = CreateThemedSlider(canvas.transform, "SFXVolumeSlider", new Vector2(0, startY - rowH * row - 50), GreenBright);
-        row++;
+        // Mute Toggle
+        var muteContainer = CreateEmpty(card.transform, "MuteContainer");
+        SetAnchors(muteContainer.GetComponent<RectTransform>(), 0.05f, 0.15f, 0.95f, 0.32f);
+        muteContainer.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        muteContainer.GetComponent<RectTransform>().offsetMax = Vector2.zero;
 
-        // ── Mute All Toggle ──
-        var muteToggle = CreateThemedToggle(canvas.transform, "MuteToggle", "🔇  Mute All", new Vector2(0, startY - rowH * row - 20), RedAccent);
-        row++;
+        var muteLabel = CreateTMP(muteContainer.transform, "MuteLabel", "Mute All", 28, TextWhite, TextAlignmentOptions.Left);
+        SetAnchors(muteLabel.rectTransform, 0f, 0f, 0.7f, 1f);
+        muteLabel.rectTransform.offsetMin = Vector2.zero;
+        muteLabel.rectTransform.offsetMax = Vector2.zero;
 
-        // ── Particles Toggle ──
-        CreateThemedToggle(canvas.transform, "ParticlesToggle", "✨  Particles", new Vector2(0, startY - rowH * row - 20), GreenBright);
-        row++;
+        var muteToggle = CreateToggle(muteContainer.transform, "MuteToggle");
+        SetAnchors(muteToggle.GetComponent<RectTransform>(), 0.75f, 0.15f, 0.95f, 0.85f);
+        muteToggle.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        muteToggle.GetComponent<RectTransform>().offsetMax = Vector2.zero;
 
-        // ── Vibration Toggle ──
-        CreateThemedToggle(canvas.transform, "VibrationToggle", "📳  Vibration", new Vector2(0, startY - rowH * row - 20), GreenBright);
-        row++;
+        // Back Button
+        var backBtn = CreateButton(canvas.transform, "BackButton", "Back", 36, Purple, TextWhite);
+        SetAnchors(backBtn.GetComponent<RectTransform>(), 0.2f, 0.25f, 0.8f, 0.35f);
+        backBtn.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        backBtn.GetComponent<RectTransform>().offsetMax = Vector2.zero;
 
-        // ── Divider ──
-        var divider = CreateImage(canvas.transform, "Divider", new Vector2(0, startY - rowH * row - 10), new Vector2(850, 2));
-        divider.GetComponent<Image>().color = new Color(1, 1, 1, 0.15f);
-        row++;
+        // Wire SceneLoader for back button
+        var sceneLoader = canvas.gameObject.AddComponent<SceneLoader>();
+        UnityEventTools.AddPersistentListener(backBtn.onClick, sceneLoader.LoadMainMenu);
 
-        // ── About Section ──
-        CreateTMPText(canvas.transform, "AboutTitle", "About", 28, White, new Vector2(0, startY - rowH * (row - 1) - 40));
-        CreateTMPText(canvas.transform, "VersionText", "Version 1.0.0", 20, WhiteSec, new Vector2(0, startY - rowH * (row - 1) - 80));
-        CreateTMPText(canvas.transform, "MadeWithLove", "Made with ❤️ by Pito Games", 18, WhiteSec, new Vector2(0, startY - rowH * (row - 1) - 115));
+        // Wire AudioSettingsUI
+        var audioUI = canvas.gameObject.AddComponent<AudioSettingsUI>();
+        var aso = new SerializedObject(audioUI);
+        aso.FindProperty("sfxVolumeSlider").objectReferenceValue = sfxSlider;
+        aso.FindProperty("musicVolumeSlider").objectReferenceValue = musicSlider;
+        aso.FindProperty("muteToggle").objectReferenceValue = muteToggle;
+        aso.ApplyModifiedProperties();
 
-        // ── Wire AudioSettingsUI ──
-        var audioSettings = canvas.AddComponent<AudioSettingsUI>();
-        var so = new SerializedObject(audioSettings);
-        so.FindProperty("sfxVolumeSlider").objectReferenceValue = sfxSlider.GetComponent<Slider>();
-        so.FindProperty("musicVolumeSlider").objectReferenceValue = musicSlider.GetComponent<Slider>();
-        so.FindProperty("muteToggle").objectReferenceValue = muteToggle.GetComponent<Toggle>();
-        so.ApplyModifiedPropertiesWithoutUndo();
-
-        CreateEventSystem();
-        EditorSceneManager.SaveScene(scene, "Assets/Scenes/Settings.unity");
-        Debug.Log("[SceneBuilder] Settings built (v2).");
+        SaveScene(scene, "Assets/Scenes/Settings.unity");
     }
 
-    // ═══════════════════════════════════════════════════
-    // BUILD SETTINGS
-    // ═══════════════════════════════════════════════════
-    [MenuItem("BrainBlast/Fix Build Settings")]
-    public static void FixBuildSettings()
-    {
-        string[] scenePaths = {
-            "Assets/Scenes/SplashScreen.unity",
-            "Assets/Scenes/MainMenu.unity",
-            "Assets/Scenes/Gameplay.unity",
-            "Assets/Scenes/Settings.unity"
-        };
-        var scenes = new EditorBuildSettingsScene[scenePaths.Length];
-        for (int i = 0; i < scenePaths.Length; i++)
-            scenes[i] = new EditorBuildSettingsScene(scenePaths[i], true);
-        EditorBuildSettings.scenes = scenes;
-        Debug.Log("[SceneBuilder] Build settings updated.");
-    }
-
-    // ═══════════════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════════
     // HELPER METHODS
-    // ═══════════════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════════
 
-    private static void CreateCamera(Color bgColor)
+    private static Camera CreateCamera(Color bgColor)
     {
-        var go = new GameObject("Main Camera");
-        var cam = go.AddComponent<Camera>();
+        var camObj = new GameObject("Main Camera");
+        camObj.tag = "MainCamera";
+        var cam = camObj.AddComponent<Camera>();
         cam.clearFlags = CameraClearFlags.SolidColor;
         cam.backgroundColor = bgColor;
         cam.orthographic = true;
-        go.AddComponent<AudioListener>();
+        cam.orthographicSize = 5;
+        return cam;
     }
 
-    private static GameObject CreateCanvas(string name)
+    private static void CreateEventSystem()
     {
-        var go = new GameObject(name);
-        var canvas = go.AddComponent<Canvas>();
+        var esObj = new GameObject("EventSystem");
+        esObj.AddComponent<EventSystem>();
+        esObj.AddComponent<StandaloneInputModule>();
+    }
+
+    private static Canvas CreateCanvas(string name)
+    {
+        var obj = new GameObject(name);
+        var canvas = obj.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 0;
 
-        var scaler = go.AddComponent<CanvasScaler>();
+        var scaler = obj.AddComponent<CanvasScaler>();
         scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1080, 1920);
+        scaler.referenceResolution = new Vector2(REF_W, REF_H);
         scaler.matchWidthOrHeight = 0.5f;
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
 
-        go.AddComponent<GraphicRaycaster>();
-        return go;
+        obj.AddComponent<GraphicRaycaster>();
+
+        return canvas;
     }
 
-    private static GameObject CreateTMPText(Transform parent, string name, string text, int fontSize, Color color, Vector2 pos)
+    private static Image CreateImage(Transform parent, string name, Color color)
     {
-        var go = new GameObject(name);
-        go.transform.SetParent(parent, false);
-        var rt = go.AddComponent<RectTransform>();
-        rt.anchoredPosition = pos;
-        rt.sizeDelta = new Vector2(900, fontSize + 30);
+        var obj = new GameObject(name);
+        obj.transform.SetParent(parent, false);
+        var img = obj.AddComponent<Image>();
+        img.color = color;
+        return img;
+    }
 
-        var tmp = go.AddComponent<TextMeshProUGUI>();
+    private static TextMeshProUGUI CreateTMP(Transform parent, string name, string text, int fontSize, Color color, TextAlignmentOptions alignment)
+    {
+        var obj = new GameObject(name);
+        obj.transform.SetParent(parent, false);
+        var tmp = obj.AddComponent<TextMeshProUGUI>();
         tmp.text = text;
         tmp.fontSize = fontSize;
         tmp.color = color;
-        tmp.alignment = TextAlignmentOptions.Center;
-        tmp.enableAutoSizing = false;
+        tmp.alignment = alignment;
+        tmp.enableWordWrapping = true;
         tmp.overflowMode = TextOverflowModes.Ellipsis;
-
-        return go;
+        return tmp;
     }
 
-    private static GameObject CreateImage(Transform parent, string name, Vector2 pos, Vector2 size)
+    private static Button CreateButton(Transform parent, string name, string label, int fontSize, Color bgColor, Color textColor)
     {
-        var go = new GameObject(name);
-        go.transform.SetParent(parent, false);
-        var rt = go.AddComponent<RectTransform>();
-        rt.anchoredPosition = pos;
-        rt.sizeDelta = size;
-        go.AddComponent<Image>();
-        return go;
-    }
+        var obj = new GameObject(name);
+        obj.transform.SetParent(parent, false);
 
-    private static GameObject CreateStretchPanel(Transform parent, string name, Color color)
-    {
-        var go = new GameObject(name);
-        go.transform.SetParent(parent, false);
-        var rt = go.AddComponent<RectTransform>();
-        rt.anchorMin = Vector2.zero;
-        rt.anchorMax = Vector2.one;
-        rt.offsetMin = Vector2.zero;
-        rt.offsetMax = Vector2.zero;
-        var img = go.AddComponent<Image>();
-        img.color = color;
-        return go;
-    }
-
-    private static GameObject CreateAnchoredPanel(Transform parent, string name,
-        Vector2 anchorMin, Vector2 anchorMax, Vector2 pivot,
-        Vector2 anchoredPos, Vector2 sizeDelta)
-    {
-        var go = new GameObject(name);
-        go.transform.SetParent(parent, false);
-        var rt = go.AddComponent<RectTransform>();
-        rt.anchorMin = anchorMin;
-        rt.anchorMax = anchorMax;
-        rt.pivot = pivot;
-        rt.anchoredPosition = anchoredPos;
-        rt.sizeDelta = sizeDelta;
-        go.AddComponent<Image>();
-        return go;
-    }
-
-    private static GameObject CreateStyledButton(Transform parent, string name, string label,
-        Vector2 pos, Vector2 size, Color bgColor, Color textColor)
-    {
-        var go = new GameObject(name);
-        go.transform.SetParent(parent, false);
-        var rt = go.AddComponent<RectTransform>();
-        rt.anchoredPosition = pos;
-        rt.sizeDelta = size;
-
-        var img = go.AddComponent<Image>();
+        var img = obj.AddComponent<Image>();
         img.color = bgColor;
 
-        var btn = go.AddComponent<Button>();
+        var btn = obj.AddComponent<Button>();
         var colors = btn.colors;
         colors.normalColor = Color.white;
         colors.highlightedColor = new Color(0.9f, 0.9f, 0.9f);
         colors.pressedColor = new Color(0.7f, 0.7f, 0.7f);
         btn.colors = colors;
-        btn.targetGraphic = img;
 
-        var txtGo = new GameObject("Label");
-        txtGo.transform.SetParent(go.transform, false);
-        var txtRT = txtGo.AddComponent<RectTransform>();
-        txtRT.anchorMin = Vector2.zero;
-        txtRT.anchorMax = Vector2.one;
-        txtRT.sizeDelta = Vector2.zero;
-        txtRT.offsetMin = Vector2.zero;
-        txtRT.offsetMax = Vector2.zero;
-
-        var tmp = txtGo.AddComponent<TextMeshProUGUI>();
+        // Text child
+        var textObj = new GameObject("Text");
+        textObj.transform.SetParent(obj.transform, false);
+        var tmp = textObj.AddComponent<TextMeshProUGUI>();
         tmp.text = label;
-        tmp.fontSize = 28;
+        tmp.fontSize = fontSize;
         tmp.color = textColor;
         tmp.alignment = TextAlignmentOptions.Center;
         tmp.fontStyle = FontStyles.Bold;
+        StretchFull(textObj.GetComponent<RectTransform>());
 
-        return go;
+        return btn;
     }
 
-    private static GameObject CreateIconButton(Transform parent, string name, string icon,
-        Vector2 pos, Vector2 size, Color bgColor)
+    private static Slider CreateSlider(Transform parent, string name, float defaultValue)
     {
-        var go = CreateStyledButton(parent, name, icon, pos, size, bgColor, White);
-        go.GetComponentInChildren<TextMeshProUGUI>().fontSize = 28;
-        return go;
-    }
+        var obj = new GameObject(name);
+        obj.transform.SetParent(parent, false);
 
-    private static GameObject CreateThemedSlider(Transform parent, string name, Vector2 pos, Color fillColor)
-    {
-        var go = new GameObject(name);
-        go.transform.SetParent(parent, false);
-        var rt = go.AddComponent<RectTransform>();
-        rt.anchoredPosition = pos;
-        rt.sizeDelta = new Vector2(800, 50);
-
-        // Background track
-        var bg = new GameObject("Background");
-        bg.transform.SetParent(go.transform, false);
-        var bgImg = bg.AddComponent<Image>();
-        bgImg.color = new Color(1, 1, 1, 0.1f);
-        var bgRT = bg.GetComponent<RectTransform>();
-        bgRT.anchorMin = new Vector2(0, 0.3f);
-        bgRT.anchorMax = new Vector2(1, 0.7f);
-        bgRT.sizeDelta = Vector2.zero;
-        bgRT.offsetMin = Vector2.zero;
-        bgRT.offsetMax = Vector2.zero;
+        // Background
+        var bgObj = new GameObject("Background");
+        bgObj.transform.SetParent(obj.transform, false);
+        var bgImg = bgObj.AddComponent<Image>();
+        bgImg.color = new Color(1, 1, 1, 0.15f);
+        StretchFull(bgObj.GetComponent<RectTransform>());
 
         // Fill area
         var fillArea = new GameObject("Fill Area");
-        fillArea.transform.SetParent(go.transform, false);
-        var fillAreaRT = fillArea.AddComponent<RectTransform>();
-        fillAreaRT.anchorMin = new Vector2(0, 0.3f);
-        fillAreaRT.anchorMax = new Vector2(1, 0.7f);
-        fillAreaRT.sizeDelta = new Vector2(-20, 0);
-        fillAreaRT.offsetMin = new Vector2(5, 0);
-        fillAreaRT.offsetMax = new Vector2(-5, 0);
+        fillArea.transform.SetParent(obj.transform, false);
+        var fillAreaRect = fillArea.AddComponent<RectTransform>();
+        StretchFull(fillAreaRect);
+        fillAreaRect.offsetMin = new Vector2(0, 0);
+        fillAreaRect.offsetMax = new Vector2(0, 0);
 
         var fill = new GameObject("Fill");
         fill.transform.SetParent(fillArea.transform, false);
         var fillImg = fill.AddComponent<Image>();
-        fillImg.color = fillColor;
-        var fillRT = fill.GetComponent<RectTransform>();
-        fillRT.anchorMin = Vector2.zero;
-        fillRT.anchorMax = Vector2.one;
-        fillRT.sizeDelta = Vector2.zero;
-        fillRT.offsetMin = Vector2.zero;
-        fillRT.offsetMax = Vector2.zero;
+        fillImg.color = Purple;
+        StretchFull(fill.GetComponent<RectTransform>());
 
         // Handle slide area
         var handleArea = new GameObject("Handle Slide Area");
-        handleArea.transform.SetParent(go.transform, false);
-        var handleAreaRT = handleArea.AddComponent<RectTransform>();
-        handleAreaRT.anchorMin = Vector2.zero;
-        handleAreaRT.anchorMax = Vector2.one;
-        handleAreaRT.sizeDelta = new Vector2(-20, 0);
-        handleAreaRT.offsetMin = new Vector2(10, 0);
-        handleAreaRT.offsetMax = new Vector2(-10, 0);
+        handleArea.transform.SetParent(obj.transform, false);
+        StretchFull(handleArea.AddComponent<RectTransform>());
 
         var handle = new GameObject("Handle");
         handle.transform.SetParent(handleArea.transform, false);
         var handleImg = handle.AddComponent<Image>();
-        handleImg.color = White;
-        var handleRT = handle.GetComponent<RectTransform>();
-        handleRT.sizeDelta = new Vector2(40, 40);
+        handleImg.color = TextWhite;
+        var handleRect = handle.GetComponent<RectTransform>();
+        handleRect.sizeDelta = new Vector2(40, 0);
 
-        var slider = go.AddComponent<Slider>();
-        slider.fillRect = fillRT;
-        slider.handleRect = handleRT;
+        // Slider component
+        var slider = obj.AddComponent<Slider>();
+        slider.fillRect = fill.GetComponent<RectTransform>();
+        slider.handleRect = handleRect;
         slider.targetGraphic = handleImg;
-        slider.minValue = 0;
-        slider.maxValue = 1;
-        slider.value = 0.7f;
+        slider.minValue = 0f;
+        slider.maxValue = 1f;
+        slider.value = defaultValue;
 
-        return go;
+        return slider;
     }
 
-    private static GameObject CreateThemedToggle(Transform parent, string name, string label, Vector2 pos, Color activeColor)
+    private static Toggle CreateToggle(Transform parent, string name)
     {
-        var container = new GameObject(name + "Container");
-        container.transform.SetParent(parent, false);
-        var containerRT = container.AddComponent<RectTransform>();
-        containerRT.anchoredPosition = pos;
-        containerRT.sizeDelta = new Vector2(800, 60);
+        var obj = new GameObject(name);
+        obj.transform.SetParent(parent, false);
 
-        // Label
-        var labelGo = CreateTMPText(container.transform, name + "Label", label, 26, White, new Vector2(-200, 0));
-        labelGo.GetComponent<RectTransform>().sizeDelta = new Vector2(400, 50);
-        labelGo.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Left;
+        // Background
+        var bgObj = new GameObject("Background");
+        bgObj.transform.SetParent(obj.transform, false);
+        var bgImg = bgObj.AddComponent<Image>();
+        bgImg.color = new Color(1, 1, 1, 0.2f);
+        StretchFull(bgObj.GetComponent<RectTransform>());
 
-        // Toggle track
-        var toggleGo = new GameObject(name);
-        toggleGo.transform.SetParent(container.transform, false);
-        var toggleRT = toggleGo.AddComponent<RectTransform>();
-        toggleRT.anchoredPosition = new Vector2(300, 0);
-        toggleRT.sizeDelta = new Vector2(80, 40);
+        // Checkmark
+        var checkObj = new GameObject("Checkmark");
+        checkObj.transform.SetParent(bgObj.transform, false);
+        var checkImg = checkObj.AddComponent<Image>();
+        checkImg.color = Purple;
+        var checkRect = checkObj.GetComponent<RectTransform>();
+        StretchFull(checkRect);
+        checkRect.offsetMin = new Vector2(6, 6);
+        checkRect.offsetMax = new Vector2(-6, -6);
 
-        // Track background
-        var trackBg = new GameObject("Background");
-        trackBg.transform.SetParent(toggleGo.transform, false);
-        var trackImg = trackBg.AddComponent<Image>();
-        trackImg.color = new Color(1, 1, 1, 0.15f);
-        var trackRT = trackBg.GetComponent<RectTransform>();
-        trackRT.anchorMin = Vector2.zero;
-        trackRT.anchorMax = Vector2.one;
-        trackRT.sizeDelta = Vector2.zero;
-
-        // Checkmark (knob)
-        var checkGo = new GameObject("Checkmark");
-        checkGo.transform.SetParent(trackBg.transform, false);
-        var checkImg = checkGo.AddComponent<Image>();
-        checkImg.color = activeColor;
-        var checkRT = checkGo.GetComponent<RectTransform>();
-        checkRT.anchorMin = new Vector2(0.5f, 0.1f);
-        checkRT.anchorMax = new Vector2(0.95f, 0.9f);
-        checkRT.sizeDelta = Vector2.zero;
-        checkRT.offsetMin = Vector2.zero;
-        checkRT.offsetMax = Vector2.zero;
-
-        var toggle = toggleGo.AddComponent<Toggle>();
-        toggle.targetGraphic = trackImg;
+        var toggle = obj.AddComponent<Toggle>();
+        toggle.targetGraphic = bgImg;
         toggle.graphic = checkImg;
-        toggle.isOn = true;
+        toggle.isOn = false;
 
-        return toggleGo;
+        return toggle;
     }
 
-    private static void CreateEventSystem()
+    private static GameObject CreateEmpty(Transform parent, string name)
     {
-        if (Object.FindObjectOfType<EventSystem>() != null) return;
-        var go = new GameObject("EventSystem");
-        go.AddComponent<EventSystem>();
-        go.AddComponent<StandaloneInputModule>();
+        var obj = new GameObject(name);
+        obj.transform.SetParent(parent, false);
+        obj.AddComponent<RectTransform>();
+        return obj;
+    }
+
+    private static void StretchFull(RectTransform rt)
+    {
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
+    }
+
+    private static void SetAnchors(RectTransform rt, float xMin, float yMin, float xMax, float yMax)
+    {
+        rt.anchorMin = new Vector2(xMin, yMin);
+        rt.anchorMax = new Vector2(xMax, yMax);
+    }
+
+    private static void SaveScene(Scene scene, string path)
+    {
+        EditorSceneManager.SaveScene(scene, path);
+        Debug.Log($"[SceneBuilder] Saved: {path}");
     }
 }
