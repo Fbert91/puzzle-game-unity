@@ -26,6 +26,7 @@ public class ProceduralLevelGenerator : MonoBehaviour
         public string puzzleRule;
         public int targetSum;
         public int requiredTiles;
+        public int minTiles;
         public int targetMoves;
         public int timeLimit;
         public StarThresholds starThresholds;
@@ -260,6 +261,7 @@ public class ProceduralLevelGenerator : MonoBehaviour
             initialTiles = data.initialTiles,
             targetSum = data.targetSum,
             requiredTiles = data.requiredTiles,
+            minTiles = data.minTiles,
             timeLimit = data.timeLimit > 0 ? data.timeLimit : 120,
             starThresholds = data.starThresholds != null ? 
                 new int[] { data.starThresholds.star1, data.starThresholds.star2, data.starThresholds.star3 } : null,

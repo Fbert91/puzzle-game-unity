@@ -250,6 +250,27 @@ public class SceneBuilder
         speechBubbleObj.gameObject.SetActive(false);
 
         // Streak section
+        // Brain Meter panel
+        var brainPanel = CreateImage(mainMenuPanel.transform, "BrainMeterPanel", DarkCard);
+        SetAnchors(brainPanel.rectTransform, 0.1f, 0.62f, 0.9f, 0.71f);
+        brainPanel.rectTransform.offsetMin = Vector2.zero;
+        brainPanel.rectTransform.offsetMax = Vector2.zero;
+
+        var brainIcon = CreateLegacyText(brainPanel.transform, "BrainIcon", "IQ", 28, Purple, TextAnchor.MiddleCenter);
+        SetAnchors(brainIcon.rectTransform, 0.02f, 0.1f, 0.18f, 0.9f);
+        brainIcon.rectTransform.offsetMin = Vector2.zero;
+        brainIcon.rectTransform.offsetMax = Vector2.zero;
+
+        var brainScoreText = CreateLegacyText(brainPanel.transform, "BrainScoreText", "Brain Score: 0", 24, YellowGold, TextAnchor.MiddleLeft);
+        SetAnchors(brainScoreText.rectTransform, 0.2f, 0.5f, 0.98f, 1f);
+        brainScoreText.rectTransform.offsetMin = Vector2.zero;
+        brainScoreText.rectTransform.offsetMax = Vector2.zero;
+
+        var brainRankText = CreateLegacyText(brainPanel.transform, "BrainRankText", "Rank: Beginner", 20, TextSecondary, TextAnchor.MiddleLeft);
+        SetAnchors(brainRankText.rectTransform, 0.2f, 0f, 0.98f, 0.5f);
+        brainRankText.rectTransform.offsetMin = Vector2.zero;
+        brainRankText.rectTransform.offsetMax = Vector2.zero;
+
         var streakPanel = CreateImage(mainMenuPanel.transform, "StreakPanel", DarkCard);
         SetAnchors(streakPanel.rectTransform, 0.1f, 0.52f, 0.9f, 0.61f);
         streakPanel.rectTransform.offsetMin = Vector2.zero;
@@ -804,6 +825,12 @@ public class SceneBuilder
         var initObj = new GameObject("GameInitializer");
         initObj.transform.SetParent(canvas.transform, false);
         initObj.AddComponent<GameInitializer>();
+
+        // --- BrainMeter (persistent skill score) ---
+        initObj.AddComponent<BrainMeter>();
+
+        // --- BoosterManager (power-ups) ---
+        initObj.AddComponent<BoosterManager>();
 
         // --- BoardRenderer on boardArea ---
         var boardRenderer = boardArea.AddComponent<BoardRenderer>();

@@ -54,6 +54,8 @@ public class GameplayUI : MonoBehaviour
         string rule;
         if (level.requiredTiles > 0)
             rule = $"Select exactly {level.requiredTiles} tiles that sum to {level.targetSum}!";
+        else if (level.minTiles > 2)
+            rule = $"Select {level.minTiles}+ tiles that sum to {level.targetSum}!";
         else
             rule = $"Select tiles that sum to {level.targetSum}!";
         ruleText.text = rule;
@@ -80,6 +82,12 @@ public class GameplayUI : MonoBehaviour
     {
         combo = newCombo;
         if (comboText) comboText.text = combo > 1 ? $"Combo: x{combo}" : "";
+    }
+
+    public void AddBonusTime(float seconds)
+    {
+        timer = Mathf.Max(0, timer - seconds); // timer counts up, so subtract to give more time
+        Debug.Log($"[GameplayUI] Added {seconds}s bonus time");
     }
 
     public void UpdateScore(int score)

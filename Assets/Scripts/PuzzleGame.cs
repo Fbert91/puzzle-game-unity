@@ -27,6 +27,7 @@ public class PuzzleGame : MonoBehaviour
         public int[] initialTiles;
         public int targetSum; // For sum-based puzzles
         public int requiredTiles; // 0 = any 2+, 3 = must pick exactly 3, etc.
+        public int minTiles; // minimum tiles needed (0 = default 2)
         public string[] targetPattern; // For pattern-based puzzles
         public int difficulty; // 1=Easy, 2=Medium, 3=Hard
         public int timeLimit = 120;
@@ -46,6 +47,7 @@ public class PuzzleGame : MonoBehaviour
     private int hintCount = 0;
     private int moveCount = 0;
     private int score = 0;
+    private int missedTiles = 0;
     private float sessionStartTime;
 
     public event Action OnPuzzleSolved;
@@ -89,6 +91,7 @@ public class PuzzleGame : MonoBehaviour
         selectedTiles.Clear();
         moveCount = 0;
         score = 0;
+        missedTiles = 0;
         hintCount = 0;
 
         OnBoardUpdated?.Invoke();
@@ -216,7 +219,7 @@ public class PuzzleGame : MonoBehaviour
     private bool CheckSumToTen()
     {
         int required = currentLevel.requiredTiles;
-        int minTiles = required > 0 ? required : 2;
+        int minTiles = required > 0 ? required : Mathf.Max(2, currentLevel.minTiles);
 
         if (selectedTiles.Count < minTiles) return false;
 
@@ -268,8 +271,9 @@ public class PuzzleGame : MonoBehaviour
             if (!HasValidMoves())
             {
                 // Penalty for remaining tiles
-                score -= remainingCount * 50;
-                if (score < 0) score = 0;
+                // Don't dock points — just cap star rating based on remaining tiles
+                // "Missed potential" framing instead of punishment
+                missedTiles = remainingCount;
                 OnNoValidMoves?.Invoke();
             }
 
@@ -377,24 +381,42 @@ public class PuzzleGame : MonoBehaviour
         if (UIManager.Instance != null)
             UIManager.Instance.ShowVictory(score, stars);
 
+        // Update Brain Meter
+        if (BrainMeter.Instance != null)
+        {
+            int worldIdx = (currentLevelId - 1) / 40;
+            BrainMeter.Instance.OnLevelComplete(worldIdx, stars, score, missedTiles == 0);
+        }
+
         OnPuzzleSolved?.Invoke();
         Debug.Log($"Puzzle Solved! Score: {score}, Stars: {stars}, Time: {sessionTime:F1}s");
     }
 
     private int CalculateStars()
     {
+        int stars;
         if (currentLevel.starThresholds != null && currentLevel.starThresholds.Length >= 3)
         {
-            if (score >= currentLevel.starThresholds[2]) return 3;
-            if (score >= currentLevel.starThresholds[1]) return 2;
-            if (score >= currentLevel.starThresholds[0]) return 1;
-            return 0;
+            if (score >= currentLevel.starThresholds[2]) stars = 3;
+            else if (score >= currentLevel.starThresholds[1]) stars = 2;
+            else if (score >= currentLevel.starThresholds[0]) stars = 1;
+            else stars = 0;
         }
-        // Fallback
-        if (score >= 800) return 3;
-        if (score >= 500) return 2;
-        return 1;
+        else
+        {
+            if (score >= 800) stars = 3;
+            else if (score >= 500) stars = 2;
+            else stars = 1;
+        }
+
+        // Cap stars based on missed tiles ("missed potential")
+        if (missedTiles > 0) stars = Mathf.Min(stars, 1); // Can't get more than 1 star with leftovers
+        if (missedTiles > 3) stars = 0; // Too many left = no stars
+
+        return stars;
     }
+
+    public int GetMissedTiles() => missedTiles;
 
     /// <summary>
     /// Provide a hint to the player
@@ -478,5 +500,13 @@ public class PuzzleGame : MonoBehaviour
     }
 
     public int GetHintCount() => hintCount;
+
+    public void ClearSelection()
+    {
+        foreach (var tile in selectedTiles)
+            tile.isSelected = false;
+        selectedTiles.Clear();
+        OnBoardUpdated?.Invoke();
+    }
     public List<Tile> GetSelectedTiles() => selectedTiles;
 }

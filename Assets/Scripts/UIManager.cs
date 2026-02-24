@@ -96,6 +96,28 @@ public class UIManager : MonoBehaviour
         // Play menu music
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlayMenuMusic();
+
+        // Update Brain Meter display
+        UpdateBrainMeterUI();
+    }
+
+    private void UpdateBrainMeterUI()
+    {
+        if (BrainMeter.Instance == null) return;
+
+        var brainScoreText = mainMenuPanel.transform.Find("BrainMeterPanel/BrainScoreText");
+        if (brainScoreText != null)
+        {
+            var text = brainScoreText.GetComponent<Text>();
+            if (text != null) text.text = $"Brain Score: {BrainMeter.Instance.BrainScore}";
+        }
+
+        var brainRankText = mainMenuPanel.transform.Find("BrainMeterPanel/BrainRankText");
+        if (brainRankText != null)
+        {
+            var text = brainRankText.GetComponent<Text>();
+            if (text != null) text.text = $"Rank: {BrainMeter.Instance.BrainRank}";
+        }
     }
 
     public void ShowLevelSelect()
@@ -197,12 +219,16 @@ public class UIManager : MonoBehaviour
         gameOverPanel.SetActive(true);
         Time.timeScale = 0f;
 
-        // Show remaining tiles info
+        // "Missed potential" framing — not punishment
         int remaining = PuzzleGame.Instance != null ? PuzzleGame.Instance.CountRemainingTiles() : 0;
-        int penalty = remaining * 50;
         var msgText = gameOverPanel.GetComponentInChildren<UnityEngine.UI.Text>();
         if (msgText != null)
-            msgText.text = $"{remaining} tiles remaining (-{penalty} pts)\nTry again for a perfect clear!";
+        {
+            if (remaining <= 2)
+                msgText.text = $"So close! {remaining} tiles left.\nYou could earn more stars — try again!";
+            else
+                msgText.text = $"{remaining} tiles remaining.\nClear them all for a perfect score!";
+        }
 
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlayInvalidMove();
