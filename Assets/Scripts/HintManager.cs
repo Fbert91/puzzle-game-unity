@@ -161,7 +161,7 @@ public class HintManager : MonoBehaviour
         StartCoroutine(ShowHintVisual(hintX, hintY));
 
         // Also highlight via BoardRenderer (works even without glow prefab)
-        var boardRenderer = Object.FindObjectOfType<BoardRenderer>();
+        var boardRenderer = FindObjectOfType<BoardRenderer>();
         if (boardRenderer != null && hintX >= 0 && hintY >= 0)
         {
             boardRenderer.HighlightTile(hintX, hintY, hintGlowDuration);
