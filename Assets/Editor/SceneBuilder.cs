@@ -623,6 +623,42 @@ public class SceneBuilder
         var gpLevelCompletePanel = victoryPanel;
 
         // ════════════════════════════════════════════════════════
+        // PANEL: GAME OVER
+        // ════════════════════════════════════════════════════════
+        var gameOverPanel = CreatePanel(canvas.transform, "GameOverPanel");
+        gameOverPanel.SetActive(false);
+
+        var goDim = CreateImage(gameOverPanel.transform, "GameOverDim", new Color(0, 0, 0, 0.7f));
+        StretchFull(goDim.rectTransform);
+
+        var goCard = CreateImage(gameOverPanel.transform, "GameOverCard", DarkCard);
+        SetAnchors(goCard.rectTransform, 0.15f, 0.3f, 0.85f, 0.7f);
+        goCard.rectTransform.offsetMin = Vector2.zero;
+        goCard.rectTransform.offsetMax = Vector2.zero;
+
+        var goTitle = CreateTMP(goCard.transform, "GameOverTitle", "No Moves Left!", 40, new Color(1f, 0.4f, 0.4f), TextAlignmentOptions.Center);
+        SetAnchors(goTitle.rectTransform, 0.1f, 0.7f, 0.9f, 0.9f);
+
+        var goMsg = CreateLegacyText(goCard.transform, "GameOverMsg", "Don't worry, try again!", 24, TextWhite, TextAnchor.MiddleCenter);
+        SetAnchors(goMsg.rectTransform, 0.1f, 0.5f, 0.9f, 0.65f);
+
+        var goBtnContainer = CreateEmpty(goCard.transform, "GameOverButtons");
+        SetAnchors(goBtnContainer.GetComponent<RectTransform>(), 0.1f, 0.15f, 0.9f, 0.4f);
+        goBtnContainer.GetComponent<RectTransform>().offsetMin = Vector2.zero;
+        goBtnContainer.GetComponent<RectTransform>().offsetMax = Vector2.zero;
+        var goHLayout = goBtnContainer.AddComponent<HorizontalLayoutGroup>();
+        goHLayout.spacing = 20;
+        goHLayout.childAlignment = TextAnchor.MiddleCenter;
+        goHLayout.childForceExpandWidth = true;
+        goHLayout.childForceExpandHeight = true;
+
+        var retryBtn = CreateButtonLegacy(goBtnContainer.transform, "RetryButton", "Try Again", 28, Blue, TextWhite);
+        var goMenuBtn = CreateButtonLegacy(goBtnContainer.transform, "GoMenuButton", "Menu", 28, DarkCard, TextWhite);
+
+        WireButtonToUIManager(retryBtn, "RetryLevel");
+        WireButtonToUIManager(goMenuBtn, "ShowMainMenu");
+
+        // ════════════════════════════════════════════════════════
         // PANEL: SETTINGS
         // ════════════════════════════════════════════════════════
         var settingsPanel = CreatePanel(canvas.transform, "SettingsPanel");
@@ -779,6 +815,7 @@ public class SceneBuilder
             so.FindProperty("settingsPanel").objectReferenceValue = settingsPanel;
             so.FindProperty("shopPanel").objectReferenceValue = shopPanel;
             so.FindProperty("pausePanel").objectReferenceValue = pausePanel;
+            so.FindProperty("gameOverPanel").objectReferenceValue = gameOverPanel;
 
             so.FindProperty("playButton").objectReferenceValue = playBtn;
             so.FindProperty("settingsButton").objectReferenceValue = settingsBtn;

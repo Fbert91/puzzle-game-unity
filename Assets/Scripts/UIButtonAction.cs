@@ -49,6 +49,10 @@ public class UIButtonAction : MonoBehaviour
                 if (DailyPuzzleManager.Instance != null)
                     DailyPuzzleManager.Instance.PlayDailyPuzzle();
                 break;
+            case "RetryLevel":
+                if (UIManager.Instance != null)
+                    UIManager.Instance.RetryLevel();
+                break;
             default:
                 Debug.LogWarning($"[UIButtonAction] Unknown action: {action}");
                 break;

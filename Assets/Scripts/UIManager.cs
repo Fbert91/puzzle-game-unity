@@ -19,6 +19,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private GameObject shopPanel;
     [SerializeField] private GameObject pausePanel;
+    [SerializeField] private GameObject gameOverPanel;
 
     // Main Menu Elements
     [SerializeField] private Button playButton;
@@ -186,6 +187,23 @@ public class UIManager : MonoBehaviour
         settingsPanel.SetActive(false);
         shopPanel.SetActive(false);
         pausePanel.SetActive(false);
+        if (gameOverPanel != null) gameOverPanel.SetActive(false);
+    }
+
+    public void ShowGameOver()
+    {
+        HideAllPanels();
+        gameOverPanel.SetActive(true);
+        Time.timeScale = 0f;
+
+        if (AudioManager.Instance != null)
+            AudioManager.Instance.PlayInvalidMove();
+    }
+
+    public void RetryLevel()
+    {
+        Time.timeScale = 1f;
+        ShowGameplay(currentLevelId);
     }
 
     #endregion
@@ -296,6 +314,7 @@ public class UIManager : MonoBehaviour
         {
             PuzzleGame.Instance.OnBoardUpdated += UpdateGameplayHUD;
             PuzzleGame.Instance.OnPuzzleSolved += OnPuzzleSolved;
+            PuzzleGame.Instance.OnNoValidMoves += ShowGameOver;
             PuzzleGame.Instance.OnHintUsed += OnHintUsed;
             PuzzleGame.Instance.OnTileSelected += (tile) => 
             { 

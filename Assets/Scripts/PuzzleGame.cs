@@ -46,6 +46,7 @@ public class PuzzleGame : MonoBehaviour
     private float sessionStartTime;
 
     public event Action OnPuzzleSolved;
+    public event Action OnNoValidMoves;
     public event Action<Tile> OnTileSelected;
     public event Action OnBoardUpdated;
     public event Action<int> OnHintUsed;
@@ -253,7 +254,18 @@ public class PuzzleGame : MonoBehaviour
                 if (!allCleared) break;
             }
 
-            return allCleared;
+            if (allCleared)
+            {
+                return true;
+            }
+
+            // Check if any valid moves remain
+            if (!HasValidMoves())
+            {
+                OnNoValidMoves?.Invoke();
+            }
+
+            return false;
         }
         else if (sum > 10)
         {
@@ -376,6 +388,44 @@ public class PuzzleGame : MonoBehaviour
     public bool IsPuzzleSolved() => isPuzzleSolved;
     public int GetMoveCount() => moveCount;
     public int GetScore() => score;
+
+    /// <summary>
+    /// Check if any pair of remaining tiles sums to 10
+    /// </summary>
+    public bool HasValidMoves()
+    {
+        List<Tile> remaining = new List<Tile>();
+        for (int y = 0; y < currentLevel.gridHeight; y++)
+        {
+            for (int x = 0; x < currentLevel.gridWidth; x++)
+            {
+                if (!board[x, y].isLocked && board[x, y].value > 0)
+                    remaining.Add(board[x, y]);
+            }
+        }
+
+        // Check all pairs
+        for (int i = 0; i < remaining.Count; i++)
+        {
+            int needed = 10 - remaining[i].value;
+            for (int j = i + 1; j < remaining.Count; j++)
+            {
+                if (remaining[j].value == needed) return true;
+            }
+            // Also check 3+ tile combos (any subset summing to 10)
+            // For simplicity, just check pairs and triplets
+            for (int j = i + 1; j < remaining.Count; j++)
+            {
+                for (int k = j + 1; k < remaining.Count; k++)
+                {
+                    if (remaining[i].value + remaining[j].value + remaining[k].value == 10)
+                        return true;
+                }
+            }
+        }
+
+        return false;
+    }
     public int GetHintCount() => hintCount;
     public List<Tile> GetSelectedTiles() => selectedTiles;
 }
