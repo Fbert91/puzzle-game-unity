@@ -83,6 +83,11 @@ public class UIManager : MonoBehaviour
     public void ShowMainMenu()
     {
         HideAllPanels();
+        if (mainMenuPanel == null)
+        {
+            Debug.LogError("[UIManager] mainMenuPanel is null! Did you run Build All Scenes?");
+            return;
+        }
         mainMenuPanel.SetActive(true);
         if (characterController) characterController.PlayIdle();
         Time.timeScale = 1f; // Resume time
@@ -201,10 +206,22 @@ public class UIManager : MonoBehaviour
 
     private void PopulateLevelButtons()
     {
+        if (levelButtonContainer == null)
+        {
+            Debug.LogError("[UIManager] levelButtonContainer is null! Did you run Build All Scenes?");
+            return;
+        }
+
         // Clear existing buttons
         foreach (Transform child in levelButtonContainer)
         {
             Destroy(child.gameObject);
+        }
+
+        if (LevelManager.Instance == null)
+        {
+            Debug.LogError("[UIManager] LevelManager.Instance is null! GameInitializer may not have run.");
+            return;
         }
 
         List<PuzzleGame.PuzzleLevel> levels = LevelManager.Instance.GetAllLevels();

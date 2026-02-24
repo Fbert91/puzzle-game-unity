@@ -759,6 +759,11 @@ public class SceneBuilder
         // MANAGERS (on canvas GameObject)
         // ════════════════════════════════════════════════════════
 
+        // --- GameInitializer (bootstraps all managers: LevelManager, PuzzleGame, AudioManager, etc.) ---
+        var initObj = new GameObject("GameInitializer");
+        initObj.transform.SetParent(canvas.transform, false);
+        initObj.AddComponent<GameInitializer>();
+
         // --- BoardRenderer on boardArea ---
         var boardRenderer = boardArea.AddComponent<BoardRenderer>();
 
