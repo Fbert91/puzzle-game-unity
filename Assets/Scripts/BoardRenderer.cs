@@ -203,7 +203,7 @@ public class BoardRenderer : MonoBehaviour
 
             // Play tile click sound
             if (AudioManager.Instance != null)
-                AudioManager.Instance.PlaySFX("tile_pickup");
+                AudioManager.Instance.PlayTilePickup();
         }
     }
 
