@@ -26,8 +26,11 @@ public class PuzzleGame : MonoBehaviour
         public string puzzleRule; // "SumToTen", "ConnectPatterns", "SequenceOrder"
         public int[] initialTiles;
         public int targetSum; // For sum-based puzzles
+        public int requiredTiles; // 0 = any 2+, 3 = must pick exactly 3, etc.
         public string[] targetPattern; // For pattern-based puzzles
         public int difficulty; // 1=Easy, 2=Medium, 3=Hard
+        public int timeLimit = 120;
+        public int[] starThresholds; // [1star, 2star, 3star] score thresholds
     }
 
     public static PuzzleGame Instance { get; private set; }
@@ -212,7 +215,13 @@ public class PuzzleGame : MonoBehaviour
 
     private bool CheckSumToTen()
     {
-        if (selectedTiles.Count < 2) return false;
+        int required = currentLevel.requiredTiles;
+        int minTiles = required > 0 ? required : 2;
+
+        if (selectedTiles.Count < minTiles) return false;
+
+        // If required tiles is set, only check when exact count is reached
+        if (required > 0 && selectedTiles.Count != required) return false;
 
         int sum = 0;
         foreach (var tile in selectedTiles)
@@ -220,8 +229,10 @@ public class PuzzleGame : MonoBehaviour
             sum += tile.value;
         }
 
-        if (sum == 10)
+        if (sum == currentLevel.targetSum)
         {
+            int tilesCleared = selectedTiles.Count;
+
             // Lock/clear the matched tiles
             foreach (var tile in selectedTiles)
             {
@@ -231,49 +242,56 @@ public class PuzzleGame : MonoBehaviour
             }
             selectedTiles.Clear();
             moveCount++;
+
+            // Scoring: base + combo bonus for extra tiles
             score += 100;
+            if (tilesCleared > minTiles)
+                score += (tilesCleared - minTiles) * 50; // combo bonus
 
             // Play success sound
             if (AudioManager.Instance != null)
-                AudioManager.Instance.PlayLevelComplete();
+                AudioManager.Instance.PlayTilePickup();
 
             OnBoardUpdated?.Invoke();
 
-            // Check if all non-zero tiles are cleared
-            bool allCleared = true;
-            for (int y = 0; y < currentLevel.gridHeight; y++)
-            {
-                for (int x = 0; x < currentLevel.gridWidth; x++)
-                {
-                    if (!board[x, y].isLocked && board[x, y].value > 0)
-                    {
-                        allCleared = false;
-                        break;
-                    }
-                }
-                if (!allCleared) break;
-            }
+            // Count remaining tiles
+            int remainingCount = CountRemainingTiles();
 
-            if (allCleared)
+            if (remainingCount == 0)
             {
+                // Perfect clear bonus
+                score += 200;
                 return true;
             }
 
             // Check if any valid moves remain
             if (!HasValidMoves())
             {
+                // Penalty for remaining tiles
+                score -= remainingCount * 50;
+                if (score < 0) score = 0;
                 OnNoValidMoves?.Invoke();
             }
 
             return false;
         }
-        else if (sum > 10)
+        else if (required > 0 && selectedTiles.Count == required && sum != currentLevel.targetSum)
         {
-            // Over 10 — deselect all and give feedback
+            // Wrong sum with exact required tiles — deselect all
             foreach (var tile in selectedTiles)
-            {
                 tile.isSelected = false;
-            }
+            selectedTiles.Clear();
+
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlayInvalidMove();
+
+            OnBoardUpdated?.Invoke();
+        }
+        else if (required == 0 && sum > currentLevel.targetSum)
+        {
+            // Over target — deselect all
+            foreach (var tile in selectedTiles)
+                tile.isSelected = false;
             selectedTiles.Clear();
 
             if (AudioManager.Instance != null)
@@ -283,6 +301,16 @@ public class PuzzleGame : MonoBehaviour
         }
 
         return false;
+    }
+
+    public int CountRemainingTiles()
+    {
+        int count = 0;
+        for (int y = 0; y < currentLevel.gridHeight; y++)
+            for (int x = 0; x < currentLevel.gridWidth; x++)
+                if (!board[x, y].isLocked && board[x, y].value > 0)
+                    count++;
+        return count;
     }
 
     private bool CheckConnectPatterns()
@@ -336,31 +364,35 @@ public class PuzzleGame : MonoBehaviour
         isPuzzleSolved = true;
         float sessionTime = Time.time - sessionStartTime;
 
-        // Calculate score
-        int score = CalculateScore(sessionTime);
+        // Time bonus
+        int timeBonus = Mathf.Max(0, (int)(currentLevel.timeLimit - sessionTime) * 10);
+        score += timeBonus;
 
-        // Get stars (1-3 based on moves/time)
         int stars = CalculateStars();
 
         // Log analytics
         Analytics.Instance.LogLevelComplete(currentLevelId, score, stars, moveCount, sessionTime);
 
-        OnPuzzleSolved?.Invoke();
-        Debug.Log($"Puzzle Solved! Score: {score}, Stars: {stars}");
-    }
+        // Notify UI
+        if (UIManager.Instance != null)
+            UIManager.Instance.ShowVictory(score, stars);
 
-    private int CalculateScore(float sessionTime)
-    {
-        int baseScore = 1000;
-        int moveBonus = Mathf.Max(0, (50 - moveCount) * 10);
-        int timeBonus = Mathf.Max(0, (300 - (int)sessionTime) * 2);
-        return baseScore + moveBonus + timeBonus;
+        OnPuzzleSolved?.Invoke();
+        Debug.Log($"Puzzle Solved! Score: {score}, Stars: {stars}, Time: {sessionTime:F1}s");
     }
 
     private int CalculateStars()
     {
-        if (moveCount <= 20) return 3;
-        if (moveCount <= 35) return 2;
+        if (currentLevel.starThresholds != null && currentLevel.starThresholds.Length >= 3)
+        {
+            if (score >= currentLevel.starThresholds[2]) return 3;
+            if (score >= currentLevel.starThresholds[1]) return 2;
+            if (score >= currentLevel.starThresholds[0]) return 1;
+            return 0;
+        }
+        // Fallback
+        if (score >= 800) return 3;
+        if (score >= 500) return 2;
         return 1;
     }
 
@@ -396,36 +428,55 @@ public class PuzzleGame : MonoBehaviour
     {
         List<Tile> remaining = new List<Tile>();
         for (int y = 0; y < currentLevel.gridHeight; y++)
-        {
             for (int x = 0; x < currentLevel.gridWidth; x++)
-            {
                 if (!board[x, y].isLocked && board[x, y].value > 0)
                     remaining.Add(board[x, y]);
-            }
-        }
 
-        // Check all pairs
-        for (int i = 0; i < remaining.Count; i++)
+        int target = currentLevel.targetSum;
+        int required = currentLevel.requiredTiles;
+
+        if (required > 0)
         {
-            int needed = 10 - remaining[i].value;
-            for (int j = i + 1; j < remaining.Count; j++)
-            {
-                if (remaining[j].value == needed) return true;
-            }
-            // Also check 3+ tile combos (any subset summing to 10)
-            // For simplicity, just check pairs and triplets
-            for (int j = i + 1; j < remaining.Count; j++)
-            {
-                for (int k = j + 1; k < remaining.Count; k++)
-                {
-                    if (remaining[i].value + remaining[j].value + remaining[k].value == 10)
+            // Must use exactly 'required' tiles summing to target
+            return HasSubsetSum(remaining, 0, required, target);
+        }
+        else
+        {
+            // Any 2+ tiles summing to target
+            // Check pairs
+            for (int i = 0; i < remaining.Count; i++)
+                for (int j = i + 1; j < remaining.Count; j++)
+                    if (remaining[i].value + remaining[j].value == target)
                         return true;
-                }
-            }
+            // Check triplets
+            for (int i = 0; i < remaining.Count; i++)
+                for (int j = i + 1; j < remaining.Count; j++)
+                    for (int k = j + 1; k < remaining.Count; k++)
+                        if (remaining[i].value + remaining[j].value + remaining[k].value == target)
+                            return true;
+            // Check quads
+            for (int i = 0; i < remaining.Count; i++)
+                for (int j = i + 1; j < remaining.Count; j++)
+                    for (int k = j + 1; k < remaining.Count; k++)
+                        for (int l = k + 1; l < remaining.Count; l++)
+                            if (remaining[i].value + remaining[j].value + remaining[k].value + remaining[l].value == target)
+                                return true;
         }
 
         return false;
     }
+
+    private bool HasSubsetSum(List<Tile> tiles, int idx, int count, int target)
+    {
+        if (count == 0) return target == 0;
+        if (idx >= tiles.Count) return false;
+        if (tiles.Count - idx < count) return false; // not enough tiles left
+
+        // Include current tile or skip
+        return HasSubsetSum(tiles, idx + 1, count - 1, target - tiles[idx].value)
+            || HasSubsetSum(tiles, idx + 1, count, target);
+    }
+
     public int GetHintCount() => hintCount;
     public List<Tile> GetSelectedTiles() => selectedTiles;
 }

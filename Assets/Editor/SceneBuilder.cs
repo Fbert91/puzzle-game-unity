@@ -883,6 +883,7 @@ public class SceneBuilder
             so.FindProperty("timerText").objectReferenceValue = gpTimerText;
             so.FindProperty("scoreText").objectReferenceValue = gpScoreText;
             so.FindProperty("levelText").objectReferenceValue = gpLevelText;
+            so.FindProperty("ruleText").objectReferenceValue = ruleText;
             so.FindProperty("backButton").objectReferenceValue = gpBackBtn;
             so.FindProperty("movesText").objectReferenceValue = gpMovesText;
             so.FindProperty("comboText").objectReferenceValue = gpComboText;

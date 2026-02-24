@@ -9,6 +9,7 @@ public class GameplayUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI timerText;
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private TextMeshProUGUI levelText;
+    [SerializeField] private TextMeshProUGUI ruleText;
     [SerializeField] private Button backButton;
 
     [Header("Stats Bar")]
@@ -40,6 +41,22 @@ public class GameplayUI : MonoBehaviour
         if (AudioManager.Instance != null) AudioManager.Instance.PlayGameplayMusic();
 
         UpdateCombo(0);
+        UpdateRuleText();
+    }
+
+    public void UpdateRuleText()
+    {
+        if (ruleText == null) return;
+        if (PuzzleGame.Instance == null) return;
+        var level = PuzzleGame.Instance.GetCurrentLevel();
+        if (level == null) return;
+
+        string rule;
+        if (level.requiredTiles > 0)
+            rule = $"Select exactly {level.requiredTiles} tiles that sum to {level.targetSum}!";
+        else
+            rule = $"Select tiles that sum to {level.targetSum}!";
+        ruleText.text = rule;
     }
 
     private void Update()

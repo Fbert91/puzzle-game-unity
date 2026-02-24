@@ -193,8 +193,16 @@ public class UIManager : MonoBehaviour
     public void ShowGameOver()
     {
         HideAllPanels();
+        if (gameOverPanel == null) return;
         gameOverPanel.SetActive(true);
         Time.timeScale = 0f;
+
+        // Show remaining tiles info
+        int remaining = PuzzleGame.Instance != null ? PuzzleGame.Instance.CountRemainingTiles() : 0;
+        int penalty = remaining * 50;
+        var msgText = gameOverPanel.GetComponentInChildren<UnityEngine.UI.Text>();
+        if (msgText != null)
+            msgText.text = $"{remaining} tiles remaining (-{penalty} pts)\nTry again for a perfect clear!";
 
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlayInvalidMove();
