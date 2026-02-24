@@ -18,15 +18,45 @@ public class BoardRenderer : MonoBehaviour
     private Dictionary<string, GameObject> tileGameObjects = new Dictionary<string, GameObject>();
     private RectTransform boardContainer;
     private RectTransform myRect;
+    private bool needsRender = false;
 
     private void Start()
     {
         myRect = GetComponent<RectTransform>();
+    }
 
+    private void OnEnable()
+    {
+        if (myRect == null) myRect = GetComponent<RectTransform>();
+
+        // Subscribe to events
         if (PuzzleGame.Instance != null)
         {
+            PuzzleGame.Instance.OnBoardUpdated -= RenderBoard; // prevent double subscribe
             PuzzleGame.Instance.OnBoardUpdated += RenderBoard;
+            PuzzleGame.Instance.OnTileSelected -= OnTileSelected;
             PuzzleGame.Instance.OnTileSelected += OnTileSelected;
+        }
+
+        // Mark that we need to render (layout may not be ready yet)
+        needsRender = true;
+    }
+
+    private void Update()
+    {
+        // Wait for layout to be ready (non-zero size) before rendering
+        if (needsRender && myRect != null && myRect.rect.width > 10f)
+        {
+            needsRender = false;
+            // Re-subscribe in case PuzzleGame was created after OnEnable
+            if (PuzzleGame.Instance != null)
+            {
+                PuzzleGame.Instance.OnBoardUpdated -= RenderBoard;
+                PuzzleGame.Instance.OnBoardUpdated += RenderBoard;
+                PuzzleGame.Instance.OnTileSelected -= OnTileSelected;
+                PuzzleGame.Instance.OnTileSelected += OnTileSelected;
+            }
+            RenderBoard();
         }
     }
 
