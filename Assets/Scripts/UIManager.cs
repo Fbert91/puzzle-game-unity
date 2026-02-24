@@ -225,7 +225,7 @@ public class UIManager : MonoBehaviour
             // Show stars if completed
             if (progress != null && progress.completed)
             {
-                buttonText.text += $" {'★' * progress.starsEarned}";
+                buttonText.text += " " + new string('*', progress.starsEarned);
             }
 
             button.onClick.AddListener(() =>

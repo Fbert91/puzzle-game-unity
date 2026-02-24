@@ -201,7 +201,7 @@ public class ThemeManager : MonoBehaviour
         isDarkUnlocked = true;
         PlayerPrefs.SetInt(DARK_UNLOCKED_KEY, 1);
         PlayerPrefs.Save();
-        Debug.Log("[Theme] Dark theme unlocked! 🌙");
+        Debug.Log("[Theme] Dark theme unlocked! [Moon]");
     }
 
     /// <summary>

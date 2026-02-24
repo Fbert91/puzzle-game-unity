@@ -213,15 +213,15 @@ public class AnalyticsDashboard : MonoBehaviour
         // User churn status
         if (userProfile.isChurned)
         {
-            sb.AppendLine($"⚠️ USER CHURNED ({userProfile.daysSinceLastSession} days)");
+            sb.AppendLine($"[!] USER CHURNED ({userProfile.daysSinceLastSession} days)");
         }
         else if (userProfile.daysSinceLastSession >= 3)
         {
-            sb.AppendLine($"⚠️ WARNING: {userProfile.daysSinceLastSession} days no play");
+            sb.AppendLine($"[!] WARNING: {userProfile.daysSinceLastSession} days no play");
         }
         else
         {
-            sb.AppendLine("✓ User Active");
+            sb.AppendLine("[v] User Active");
         }
 
         sb.AppendLine();
@@ -242,7 +242,7 @@ public class AnalyticsDashboard : MonoBehaviour
         }
         else
         {
-            sb.AppendLine("✓ No critical churn levels");
+            sb.AppendLine("[v] No critical churn levels");
         }
 
         churnWarningsText.text = sb.ToString();

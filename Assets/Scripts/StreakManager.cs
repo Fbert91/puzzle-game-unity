@@ -252,7 +252,7 @@ public class StreakManager : MonoBehaviour
         if (streakRewardText != null)
         {
             if (hasPlayedToday)
-                streakRewardText.text = "✅ Played Today!";
+                streakRewardText.text = "[OK] Played Today!";
             else
                 streakRewardText.text = $"Play to earn {GetCurrentReward()} coins!";
         }
@@ -273,7 +273,7 @@ public class StreakManager : MonoBehaviour
             streakFreezeIndicator.SetActive(streakFreezes > 0);
 
         if (streakFreezeCountText != null)
-            streakFreezeCountText.text = $"❄️ {streakFreezes}";
+            streakFreezeCountText.text = $"[Ice] {streakFreezes}";
     }
 
     // Public getters

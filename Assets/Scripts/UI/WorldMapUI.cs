@@ -86,7 +86,7 @@ public class WorldMapUI : MonoBehaviour
 
             if (btnText != null)
             {
-                string lockIcon = worldData.isUnlocked ? "" : " 🔒";
+                string lockIcon = worldData.isUnlocked ? "" : " [Locked]";
                 btnText.text = $"{worldData.worldName}{lockIcon}";
             }
 
@@ -176,8 +176,8 @@ public class WorldMapUI : MonoBehaviour
                 string starDisplay = "";
                 if (node.isCompleted)
                 {
-                    for (int s = 0; s < node.starsEarned; s++) starDisplay += "★";
-                    for (int s = node.starsEarned; s < 3; s++) starDisplay += "☆";
+                    for (int s = 0; s < node.starsEarned; s++) starDisplay += "*";
+                    for (int s = node.starsEarned; s < 3; s++) starDisplay += "*";
                 }
                 nodeText.text = $"{node.levelInWorld}\n{starDisplay}";
             }

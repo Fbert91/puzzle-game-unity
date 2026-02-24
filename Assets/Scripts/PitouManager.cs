@@ -99,8 +99,8 @@ public class PitouManager : MonoBehaviour
         {
             type = ReactionType.WrongMove,
             messages = new string[] {
-                "Hmm... 🤔", "Try again! ", "Almost! :3",
-                "Don't give up! 🐾", "Close one! 🌀",
+                "Hmm... ", "Try again! ", "Almost! :3",
+                "Don't give up! ", "Close one! ",
                 "Keep trying! ~", "You got this! ~"
             },
             animationTrigger = "Thinking",
@@ -124,8 +124,8 @@ public class PitouManager : MonoBehaviour
             type = ReactionType.Idle,
             messages = new string[] {
                 "*yawn* zzz", "*stretches* (=^.^=)",
-                "*blinks slowly* :3", "*plays with tail* 🐾",
-                "*purrs quietly* 💤", "*looks around curiously* 👀"
+                "*blinks slowly* :3", "*plays with tail* ",
+                "*purrs quietly* ", "*looks around curiously* "
             },
             animationTrigger = "Idle",
             pitouSound = ""
@@ -135,7 +135,7 @@ public class PitouManager : MonoBehaviour
         {
             type = ReactionType.DailyAvailable,
             messages = new string[] {
-                "Daily puzzle ready! 📅", "New puzzle today! 🎁",
+                "Daily puzzle ready! ", "New puzzle today! ",
                 "Come solve today's! ", "Fresh puzzle awaits! ~",
                 "Let's play today's! (=^.^=)"
             },
@@ -147,7 +147,7 @@ public class PitouManager : MonoBehaviour
         {
             type = ReactionType.HintGiven,
             messages = new string[] {
-                "Try this one! 🐾", "Look here! 👀",
+                "Try this one! ", "Look here! ",
                 "Psst... this might help! :3", "I found something! *",
                 "How about this? (=^.^=)"
             },
@@ -171,8 +171,8 @@ public class PitouManager : MonoBehaviour
         {
             type = ReactionType.Thinking,
             messages = new string[] {
-                "Hmm... 🤔", "Let me think... 💭",
-                "Interesting... 🧐", "I see... 👀",
+                "Hmm... ", "Let me think... ",
+                "Interesting... ", "I see... ",
                 "What if... "
             },
             animationTrigger = "Thinking",
@@ -184,7 +184,7 @@ public class PitouManager : MonoBehaviour
             type = ReactionType.Excited,
             messages = new string[] {
                 "Yay! !", "Woohoo! *", "So exciting! ~",
-                "Let's goooo! 🚀", "Awesome! ~",
+                "Let's goooo! ", "Awesome! ~",
                 "This is great! (=^.^=)"
             },
             animationTrigger = "Celebrating",

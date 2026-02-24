@@ -97,7 +97,7 @@ public class TutorialManager : MonoBehaviour
             },
             new TutorialStep
             {
-                pitouMessage = "Tap on tiles to select them!\nTry tapping this one! 👆",
+                pitouMessage = "Tap on tiles to select them!\nTry tapping this one! ",
                 highlightTileX = 2,
                 highlightTileY = 2,
                 delay = 0.3f,
@@ -113,7 +113,7 @@ public class TutorialManager : MonoBehaviour
             },
             new TutorialStep
             {
-                pitouMessage = "Try selecting more tiles!\nThe goal is shown at the top 👆",
+                pitouMessage = "Try selecting more tiles!\nThe goal is shown at the top ",
                 highlightAll = true,
                 delay = 0.3f,
                 waitForAction = true,
@@ -132,13 +132,13 @@ public class TutorialManager : MonoBehaviour
         {
             new TutorialStep
             {
-                pitouMessage = "New trick! 🐾\nYou can swap tiles now!",
+                pitouMessage = "New trick! \nYou can swap tiles now!",
                 delay = 0.5f,
                 waitForAction = false
             },
             new TutorialStep
             {
-                pitouMessage = "Select two tiles next to each other\nto swap them! Try it! 🔄",
+                pitouMessage = "Select two tiles next to each other\nto swap them! Try it! ",
                 highlightTileX = 1,
                 highlightTileY = 1,
                 delay = 0.3f,
@@ -164,7 +164,7 @@ public class TutorialManager : MonoBehaviour
             },
             new TutorialStep
             {
-                pitouMessage = "Find tiles with the same value\nand connect them! 🔗",
+                pitouMessage = "Find tiles with the same value\nand connect them! ",
                 highlightAll = true,
                 delay = 0.3f,
                 waitForAction = true,

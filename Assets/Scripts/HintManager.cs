@@ -27,8 +27,8 @@ public class HintManager : MonoBehaviour
 
     // Pitou hint messages
     private static readonly string[] HintMessages = {
-        "Try this one! 🐾",
-        "Look here! 👀",
+        "Try this one! ",
+        "Look here! ",
         "Psst... this might help! :3",
         "I found something! *",
         "How about this? (=^.^=)"

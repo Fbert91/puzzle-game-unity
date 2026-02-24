@@ -295,7 +295,7 @@ public class DailyPuzzleManager : MonoBehaviour
         if (rewardText != null)
         {
             if (IsTodayCompleted())
-                rewardText.text = "✅ Completed Today!";
+                rewardText.text = "[OK] Completed Today!";
             else
                 rewardText.text = $"Reward: {baseCoinsReward} coins";
         }
