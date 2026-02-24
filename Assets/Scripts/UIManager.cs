@@ -396,28 +396,41 @@ public class UIManager : MonoBehaviour
 
     private void SetupVictoryListeners()
     {
-        nextLevelButton.onClick.AddListener(() =>
-        {
-            AudioManager.Instance?.PlayButtonClick();
-            PlayNextLevel();
-        });
+        if (nextLevelButton != null)
+            nextLevelButton.onClick.AddListener(() =>
+            {
+                AudioManager.Instance?.PlayButtonClick();
+                PlayNextLevel();
+            });
         
-        replayButton.onClick.AddListener(() =>
-        {
-            AudioManager.Instance?.PlayButtonClick();
-            ShowGameplay(currentLevelId);
-        });
+        if (replayButton != null)
+            replayButton.onClick.AddListener(() =>
+            {
+                AudioManager.Instance?.PlayButtonClick();
+                RetryLevel();
+            });
         
-        menuButton.onClick.AddListener(() =>
-        {
-            AudioManager.Instance?.PlayButtonClick();
-            ShowMainMenu();
-        });
+        if (menuButton != null)
+            menuButton.onClick.AddListener(() =>
+            {
+                AudioManager.Instance?.PlayButtonClick();
+                ShowMainMenu();
+            });
     }
 
     private void PlayNextLevel()
     {
-        ShowLevelSelect();
+        Time.timeScale = 1f;
+        int nextId = currentLevelId + 1;
+        if (LevelManager.Instance != null && nextId <= LevelManager.Instance.GetAllLevels().Count)
+        {
+            ShowGameplay(nextId);
+        }
+        else
+        {
+            // No more levels — back to level select
+            ShowLevelSelect();
+        }
     }
 
     #endregion

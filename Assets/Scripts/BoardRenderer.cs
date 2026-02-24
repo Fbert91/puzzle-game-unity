@@ -9,7 +9,7 @@ using System.Collections.Generic;
 /// </summary>
 public class BoardRenderer : MonoBehaviour
 {
-    [SerializeField] private float padding = 8f;
+    [SerializeField] private float padding = 12f;
     [SerializeField] private Material tileMaterial;
     [SerializeField] private Color selectedTileColor = new Color(1f, 0.84f, 0f); // Gold
     [SerializeField] private Color defaultTileColor = new Color(0.22f, 0.22f, 0.30f); // Dark card

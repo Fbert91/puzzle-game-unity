@@ -153,10 +153,15 @@ public class SceneBuilder
         SetAnchors(logo.rectTransform, 0.5f, 0.5f, 0.5f, 0.5f);
         logo.rectTransform.sizeDelta = new Vector2(300, 300);
 
-        var title = CreateTMP(center.transform, "TitleText", "BrainBlast", 64, TextWhite, TextAlignmentOptions.Center);
+        var title = CreateTMP(center.transform, "TitleText", "Pito Games", 64, TextWhite, TextAlignmentOptions.Center);
         SetAnchors(title.rectTransform, 0.5f, 0.5f, 0.5f, 0.5f);
         title.rectTransform.sizeDelta = new Vector2(800, 100);
         title.rectTransform.anchoredPosition = new Vector2(0, -220);
+
+        var subtitle = CreateTMP(center.transform, "SubtitleText", "presents", 28, new Color(0.7f, 0.7f, 0.7f), TextAlignmentOptions.Center);
+        SetAnchors(subtitle.rectTransform, 0.5f, 0.5f, 0.5f, 0.5f);
+        subtitle.rectTransform.sizeDelta = new Vector2(400, 50);
+        subtitle.rectTransform.anchoredPosition = new Vector2(0, -280);
 
         var splashComp = center.AddComponent<SplashScreen>();
         var so = new SerializedObject(splashComp);
@@ -983,6 +988,8 @@ public class SceneBuilder
 
         // Daily button -> show daily panel
         WireButtonToUIManager(dailyBtn, "ShowDaily");
+
+        // Victory buttons wired via UIManager.SetupVictoryListeners (SerializeField refs)
 
         // Pause buttons
         WireButtonToUIManager(resumeBtn, "ResumePause");
