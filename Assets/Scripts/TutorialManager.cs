@@ -254,11 +254,19 @@ public class TutorialManager : MonoBehaviour
             // Wait for action or tap
             if (step.waitForAction)
             {
+                // Allow clicks through to game tiles during action steps
+                if (dimBackground != null)
+                    dimBackground.raycastTarget = false;
+
                 waitingForAction = true;
                 while (waitingForAction && isTutorialActive)
                 {
                     yield return null;
                 }
+
+                // Re-enable raycast blocking after action
+                if (dimBackground != null)
+                    dimBackground.raycastTarget = true;
             }
             else
             {

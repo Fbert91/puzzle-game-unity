@@ -147,6 +147,10 @@ public class PuzzleGame : MonoBehaviour
         OnTileSelected?.Invoke(tile);
         OnBoardUpdated?.Invoke();
 
+        // Notify tutorial system
+        if (TutorialManager.Instance != null)
+            TutorialManager.Instance.OnTutorialAction("tap");
+
         // Check if puzzle is solved after selection
         CheckPuzzleState();
     }
