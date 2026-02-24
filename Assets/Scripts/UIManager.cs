@@ -122,6 +122,12 @@ public class UIManager : MonoBehaviour
         // Play gameplay music
         if (AudioManager.Instance != null)
             AudioManager.Instance.PlayGameplayMusic();
+
+        // Trigger tutorial if needed
+        if (TutorialManager.Instance != null && TutorialManager.Instance.ShouldShowTutorial(levelId))
+        {
+            TutorialManager.Instance.StartTutorial(levelId);
+        }
     }
 
     public void ShowVictory(int score, int stars)
@@ -313,7 +319,16 @@ public class UIManager : MonoBehaviour
 
     private void UseHint()
     {
-        if (MonetizationManager.Instance.UseHint())
+        // Try HintManager first (it has its own hint count and visual feedback)
+        if (HintManager.Instance != null)
+        {
+            HintManager.Instance.UseHint();
+            UpdateGameplayHUD();
+            return;
+        }
+
+        // Fallback to MonetizationManager
+        if (MonetizationManager.Instance != null && MonetizationManager.Instance.UseHint())
         {
             PuzzleGame.Instance.UseHint();
             UpdateGameplayHUD();
@@ -323,8 +338,7 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            // Show "Purchase hints" prompt
-            Debug.Log("No hints available. Show shop.");
+            Debug.Log("No hints available.");
         }
     }
 

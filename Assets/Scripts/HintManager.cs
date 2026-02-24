@@ -160,6 +160,13 @@ public class HintManager : MonoBehaviour
         // Show hint visual
         StartCoroutine(ShowHintVisual(hintX, hintY));
 
+        // Also highlight via BoardRenderer (works even without glow prefab)
+        var boardRenderer = Object.FindObjectOfType<BoardRenderer>();
+        if (boardRenderer != null && hintX >= 0 && hintY >= 0)
+        {
+            boardRenderer.HighlightTile(hintX, hintY, hintGlowDuration);
+        }
+
         // Pitou hint message
         if (PitouManager.Instance != null)
         {

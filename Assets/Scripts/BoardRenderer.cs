@@ -258,6 +258,38 @@ public class BoardRenderer : MonoBehaviour
         tileGameObjects.Clear();
     }
 
+    /// <summary>
+    /// Temporarily highlight a tile (used by HintManager)
+    /// </summary>
+    public void HighlightTile(int x, int y, float duration = 2f)
+    {
+        string key = $"tile_{x}_{y}";
+        if (tileGameObjects.ContainsKey(key))
+        {
+            StartCoroutine(HighlightCoroutine(tileGameObjects[key], duration));
+        }
+    }
+
+    private System.Collections.IEnumerator HighlightCoroutine(GameObject tileObj, float duration)
+    {
+        if (tileObj == null) yield break;
+        Image img = tileObj.GetComponent<Image>();
+        if (img == null) yield break;
+
+        Color original = img.color;
+        Color highlight = new Color(0.2f, 0.8f, 1f); // Bright cyan
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            float t = Mathf.PingPong(elapsed * 3f, 1f);
+            img.color = Color.Lerp(original, highlight, t);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        img.color = original;
+    }
+
     private void OnDestroy()
     {
         if (PuzzleGame.Instance != null)
@@ -267,3 +299,5 @@ public class BoardRenderer : MonoBehaviour
         }
     }
 }
+
+// Appended methods removed - using edit instead

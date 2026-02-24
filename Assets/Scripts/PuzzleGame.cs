@@ -143,6 +143,7 @@ public class PuzzleGame : MonoBehaviour
         }
 
         OnTileSelected?.Invoke(tile);
+        OnBoardUpdated?.Invoke();
 
         // Check if puzzle is solved after selection
         CheckPuzzleState();
