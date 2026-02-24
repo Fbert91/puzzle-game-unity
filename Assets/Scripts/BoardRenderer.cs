@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
@@ -270,7 +271,7 @@ public class BoardRenderer : MonoBehaviour
         }
     }
 
-    private System.Collections.IEnumerator HighlightCoroutine(GameObject tileObj, float duration)
+    private IEnumerator HighlightCoroutine(GameObject tileObj, float duration)
     {
         if (tileObj == null) yield break;
         Image img = tileObj.GetComponent<Image>();
@@ -299,5 +300,3 @@ public class BoardRenderer : MonoBehaviour
         }
     }
 }
-
-// Appended methods removed - using edit instead
