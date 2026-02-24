@@ -52,7 +52,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject shopItemPrefab;
 
     private int currentLevelId = 1;
-    private CharacterController characterController;
+    private PitouCharacterController characterController;
 
     private void Awake()
     {
@@ -75,7 +75,7 @@ public class UIManager : MonoBehaviour
         ShowMainMenu();
 
         // Get character controller
-        characterController = FindObjectOfType<CharacterController>();
+        characterController = FindObjectOfType<PitouCharacterController>();
     }
 
     #region Navigation

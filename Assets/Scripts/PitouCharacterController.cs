@@ -4,7 +4,7 @@ using System.Collections;
 /// <summary>
 /// Controls the mascot character animations and expressions
 /// </summary>
-public class CharacterController : MonoBehaviour
+public class PitouCharacterController : MonoBehaviour
 {
     [System.Serializable]
     public enum Expression

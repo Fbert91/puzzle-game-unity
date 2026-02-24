@@ -89,7 +89,7 @@ public class SceneBuilder
             text.alignment = TextAnchor.MiddleCenter;
             StretchFull(textObj.GetComponent<RectTransform>());
 
-            var rt = obj.AddComponent<RectTransform>();
+            var rt = obj.GetComponent<RectTransform>();
             rt.sizeDelta = new Vector2(160, 160);
 
             var le = obj.AddComponent<LayoutElement>();
@@ -117,7 +117,7 @@ public class SceneBuilder
             text.alignment = TextAnchor.MiddleCenter;
             StretchFull(textObj.GetComponent<RectTransform>());
 
-            var rt = obj.AddComponent<RectTransform>();
+            var rt = obj.GetComponent<RectTransform>();
             rt.sizeDelta = new Vector2(300, 120);
 
             var le = obj.AddComponent<LayoutElement>();

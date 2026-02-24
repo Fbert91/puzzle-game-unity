@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrainBlast — Complete Setup Guide</title>
+<style>
+/* ─── Base ─── */
+:root {
+  --bg: #1A1A2E;
+  --bg2: #16213E;
+  --card: #2D2D4E;
+  --purple: #7C3AED;
+  --lpurple: #8B5CF6;
+  --gold: #F1C40F;
+  --green: #2ECC71;
+  --blue: #3498DB;
+  --red: #E94560;
+  --text: #EEEEF5;
+  --dim: #AAAACC;
+  --code-bg: #0D1117;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  margin: 0; padding: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg); color: var(--text);
+  line-height: 1.7;
+}
+a { color: var(--blue); }
+
+/* ─── Layout ─── */
+.wrap { max-width: 900px; margin: 0 auto; padding: 30px 24px 80px; }
+
+/* ─── Cover ─── */
+.cover {
+  text-align: center; padding: 80px 20px 60px;
+  background: linear-gradient(135deg, #1A1A2E 0%, #2D2D4E 50%, #7C3AED 100%);
+  border-bottom: 4px solid var(--gold);
+}
+.cover h1 { font-size: 3rem; margin: 0; color: var(--gold); letter-spacing: 2px; }
+.cover .sub { font-size: 1.3rem; color: var(--dim); margin-top: 10px; }
+.cover .ver { margin-top: 30px; font-size: .9rem; color: var(--dim); }
+
+/* ─── TOC ─── */
+.toc { background: var(--card); border-radius: 12px; padding: 30px 36px; margin: 40px 0; }
+.toc h2 { margin-top: 0; color: var(--gold); }
+.toc ol { padding-left: 20px; }
+.toc li { margin: 6px 0; }
+.toc a { text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+
+/* ─── Headings ─── */
+h2.chapter {
+  font-size: 1.8rem; margin-top: 60px; padding-bottom: 10px;
+  border-bottom: 3px solid var(--purple); color: var(--lpurple);
+}
+h3 { color: var(--gold); margin-top: 36px; }
+h4 { color: var(--green); }
+
+/* ─── Callout boxes ─── */
+.box { border-radius: 10px; padding: 18px 22px; margin: 20px 0; }
+.tip    { background: #1a3a2a; border-left: 5px solid var(--green); }
+.warn   { background: #3a2a1a; border-left: 5px solid var(--gold); }
+.danger { background: #3a1a1a; border-left: 5px solid var(--red); }
+.see    { background: #1a2a3a; border-left: 5px solid var(--blue); }
+.box .label { font-weight: 700; margin-bottom: 6px; }
+.tip .label    { color: var(--green); }
+.warn .label   { color: var(--gold); }
+.danger .label { color: var(--red); }
+.see .label    { color: var(--blue); }
+
+/* ─── Code ─── */
+code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: .92em; color: #e6db74; }
+pre {
+  background: var(--code-bg); border-radius: 8px; padding: 16px 20px;
+  overflow-x: auto; font-size: .88rem; line-height: 1.5; color: #f8f8f2;
+}
+
+/* ─── Tables ─── */
+table { width: 100%; border-collapse: collapse; margin: 18px 0; }
+th { background: var(--purple); color: #fff; text-align: left; padding: 10px 14px; }
+td { padding: 10px 14px; border-bottom: 1px solid #333; }
+tr:nth-child(even) td { background: rgba(255,255,255,.03); }
+
+/* ─── Steps ─── */
+.step { counter-increment: step; position: relative; padding-left: 48px; margin: 24px 0; }
+.step::before {
+  content: counter(step);
+  position: absolute; left: 0; top: 0;
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--purple); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: .95rem;
+}
+ol.steps { counter-reset: step; list-style: none; padding: 0; }
+
+/* ─── Print ─── */
+@media print {
+  body { background: #fff; color: #111; font-size: 11pt; }
+  .cover { background: #eee !important; border-bottom-color: #999; page-break-after: always; }
+  .cover h1 { color: #333; }
+  .toc { page-break-after: always; }
+  h2.chapter { page-break-before: always; }
+  .box { border-color: #999 !important; background: #f5f5f5 !important; }
+  pre, code { background: #f0f0f0 !important; color: #222 !important; }
+  a { color: #333; text-decoration: underline; }
+  th { background: #ccc !important; color: #111 !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════ COVER ═══════ -->
+<div class="cover">
+  <h1>🧩 BrainBlast</h1>
+  <div class="sub">Complete Setup &amp; Development Guide</div>
+  <p style="font-size:1rem;color:var(--text);margin-top:20px;">From Zero to Google Play — A Beginner-Friendly Walkthrough</p>
+  <div class="ver">Unity 2022.3 LTS &bull; Version 1.0 &bull; February 2026</div>
+</div>
+
+<div class="wrap">
+
+<!-- ═══════ TABLE OF CONTENTS ═══════ -->
+<div class="toc">
+<h2>📑 Table of Contents</h2>
+<ol>
+  <li><a href="#ch1">Prerequisites — Installing Everything You Need</a></li>
+  <li><a href="#ch2">Getting the Project — Clone &amp; Open</a></li>
+  <li><a href="#ch3">Project Structure Explained</a></li>
+  <li><a href="#ch4">Building the Scenes</a></li>
+  <li><a href="#ch5">Understanding the Game</a></li>
+  <li><a href="#ch6">Playing and Testing</a></li>
+  <li><a href="#ch7">Customizing the Game</a></li>
+  <li><a href="#ch8">Adding Google AdMob (Optional)</a></li>
+  <li><a href="#ch9">Building for Android</a></li>
+  <li><a href="#ch10">Publishing to Google Play</a></li>
+  <li><a href="#ch11">Troubleshooting</a></li>
+</ol>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<h2 class="chapter" id="ch1">Chapter 1 — Prerequisites</h2>
+
+<h3>1.1 System Requirements</h3>
+<table>
+<tr><th>Component</th><th>Minimum</th><th>Recommended</th></tr>
+<tr><td>OS</td><td>Windows 10 64-bit / macOS 11</td><td>Windows 11 / macOS 13+</td></tr>
+<tr><td>RAM</td><td>8 GB</td><td>16 GB</td></tr>
+<tr><td>Disk Space</td><td>15 GB free (Unity + project)</td><td>30 GB+ free</td></tr>
+<tr><td>GPU</td><td>DX11 capable</td><td>Any modern GPU</td></tr>
+<tr><td>CPU</td><td>4 cores</td><td>6+ cores</td></tr>
+</table>
+
+<h3>1.2 Install Unity Hub</h3>
+
+<ol class="steps">
+<li class="step">
+  Open your browser and go to <a href="https://unity.com/download">https://unity.com/download</a>.
+</li>
+<li class="step">
+  Click the large <strong>"Download Unity Hub"</strong> button. It will download an installer (~100 MB).
+</li>
+<li class="step">
+  Run the installer. On Windows you'll see a standard setup wizard — click <em>Next → I Agree → Install</em>. On macOS, drag the Unity Hub app into Applications.
+</li>
+<li class="step">
+  Launch Unity Hub. You'll see a dark-themed window with a sidebar on the left containing: <strong>Projects</strong>, <strong>Installs</strong>, <strong>Learn</strong>, and <strong>Community</strong>.
+</li>
+<li class="step">
+  Sign in or create a free Unity account (required). Click the person icon in the top-left. A Unity Personal license is free.
+</li>
+</ol>
+
+<div class="box see">
+  <div class="label">👁️ What You Should See</div>
+  Unity Hub's main window has a dark sidebar on the left. The "Projects" tab shows an empty list with an "Open" and "New project" button in the top-right corner. The top bar shows your profile icon and a gear icon for settings.
+</div>
+
+<h3>1.3 Install Unity 2022.3.62f3 LTS</h3>
+
+<ol class="steps">
+<li class="step">
+  In Unity Hub, click <strong>Installs</strong> in the left sidebar.
+</li>
+<li class="step">
+  Click the blue <strong>"Install Editor"</strong> button in the top-right.
+</li>
+<li class="step">
+  A dialog appears showing "Official Releases." Under the <strong>LTS</strong> tab, find <strong>2022.3.62f3</strong>. If it's not listed, click <strong>"Archive"</strong> and it will open the Unity download archive in your browser — find the 2022.3.62f3 release and click "Unity Hub" to install it.
+</li>
+<li class="step">
+  <strong>Module selection:</strong> When prompted, check these modules:
+  <ul>
+    <li>✅ <strong>Android Build Support</strong> (includes Android SDK &amp; NDK)</li>
+    <li>✅ <strong>Microsoft Visual Studio</strong> (Windows) or skip if you prefer VS Code</li>
+    <li>☑️ iOS Build Support (optional, if you have a Mac)</li>
+  </ul>
+</li>
+<li class="step">
+  Click <strong>Install</strong>. This downloads ~5-8 GB. Go grab a coffee ☕.
+</li>
+</ol>
+
+<div class="box warn">
+  <div class="label">⚠️ Important</div>
+  Make sure you install <strong>Android Build Support</strong> now — it includes the Android SDK, NDK, and OpenJDK that you'll need later. Adding modules after the fact is possible (right-click the install → Add Modules) but doing it now saves time.
+</div>
+
+<div class="box see">
+  <div class="label">👁️ What You Should See</div>
+  After installation completes, the Installs tab shows a card for "2022.3.62f3" with a green checkmark. Below it you'll see the installed modules listed as small tags (e.g., "Android", "Visual Studio").
+</div>
+
+<h3>1.4 Install a Code Editor</h3>
+
+<h4>Option A: Visual Studio (Recommended for Windows)</h4>
+<p>If you checked the Visual Studio module during Unity install, it's already installed. Otherwise download <a href="https://visualstudio.microsoft.com/">Visual Studio Community</a> (free). During setup, select the <strong>"Game development with Unity"</strong> workload.</p>
+
+<h4>Option B: Visual Studio Code (Lighter, Cross-Platform)</h4>
+<ol class="steps">
+<li class="step">Download VS Code from <a href="https://code.visualstudio.com/">code.visualstudio.com</a> and install it.</li>
+<li class="step">Open VS Code, go to Extensions (Ctrl+Shift+X) and install:
+  <ul>
+    <li><strong>C#</strong> by Microsoft</li>
+    <li><strong>Unity</strong> by Microsoft</li>
+  </ul>
+</li>
+<li class="step">In Unity (once the project is open), go to <strong>Edit → Preferences → External Tools</strong> and set "External Script Editor" to Visual Studio Code.</li>
+</ol>
+
+<h3>1.5 Install Git</h3>
+
+<ol class="steps">
+<li class="step"><strong>Windows:</strong> Download from <a href="https://git-scm.com/download/win">git-scm.com</a>. Run the installer with default options. When asked about PATH, choose "Git from the command line and also from 3rd-party software."</li>
+<li class="step"><strong>macOS:</strong> Open Terminal and type <code>git --version</code>. If not installed, macOS will prompt you to install Command Line Tools. Click Install.</li>
+<li class="step">Verify: Open a terminal/command prompt and type:</li>
+</ol>
+<pre>git --version
+# Should output something like: git version 2.43.0</pre>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<h2 class="chapter" id="ch2">Chapter 2 — Getting the Project</h2>
+
+<h3>2.1 Clone the Repository</h3>
+
+<ol class="steps">
+<li class="step">Open a terminal (Command Prompt on Windows, Terminal on macOS).</li>
+<li class="step">Navigate to where you want the project. For example:
+<pre>cd ~/Documents</pre></li>
+<li class="step">Clone the repository:
+<pre>git clone https://github.com/Fbert91/puzzle-game-unity.git</pre>
+This creates a folder called <code>puzzle-game-unity</code> and downloads all the project files (~50-100 MB).</li>
+<li class="step">Wait for it to complete. You'll see output like:
+<pre>Cloning into 'puzzle-game-unity'...
+remote: Enumerating objects: 523, done.
+Receiving objects: 100% (523/523), done.
+Resolving deltas: 100% (187/187), done.</pre>
+</li>
+</ol>
+
+<h3>2.2 Open the Project in Unity Hub</h3>
+
+<ol class="steps">
+<li class="step">Open <strong>Unity Hub</strong>.</li>
+<li class="step">Go to the <strong>Projects</strong> tab.</li>
+<li class="step">Click the <strong>"Open"</strong> button (or the dropdown arrow next to it and select "Add project from disk").</li>
+<li class="step">Navigate to the <code>puzzle-game-unity</code> folder you just cloned. Select it and click <strong>Open</strong>.</li>
+<li class="step">Unity Hub will detect the project. If it shows a warning about the Unity version, click the version number in the project row and select <strong>2022.3.62f3</strong> to open it with the correct version.</li>
+<li class="step">Click the project name to launch it.</li>
+</ol>
+
+<h3>2.3 First-Time Import</h3>
+
+<div class="box warn">
+  <div class="label">⏱️ Be Patient!</div>
+  The first time Unity opens any project, it generates a <strong>Library/</strong> folder. This is a cache of compiled scripts, imported assets, and metadata. This process can take <strong>5–15 minutes</strong> depending on your hardware. You'll see a progress bar at the bottom of the Unity splash that says "Importing Assets." <strong>Do not close Unity</strong> during this process.
+</div>
+
+<ol class="steps">
+<li class="step">After clicking the project in Unity Hub, a splash screen appears saying "Loading…" or "Importing Assets."</li>
+<li class="step">The progress bar will go through multiple phases: importing packages, compiling scripts, importing textures/sprites.</li>
+<li class="step">When it finishes, the full Unity Editor opens with the project loaded.</li>
+</ol>
+
+<h3>2.4 Safe Mode</h3>
+
+<p>If Unity detects compilation errors, it may open in <strong>Safe Mode</strong> — a stripped-down editor with an orange banner at the top saying "Safe Mode: Script compilation errors."</p>
+
+<div class="box tip">
+  <div class="label">💡 Don't Panic</div>
+  Safe Mode usually means a dependency is missing. The most common cause with BrainBlast is the <strong>TextMeshPro</strong> (TMP) package. To fix:
+  <ol>
+    <li>Go to <strong>Window → Package Manager</strong>.</li>
+    <li>Search for "TextMeshPro" — it should already be installed. If prompted to "Import TMP Essentials," click it.</li>
+    <li>If errors persist, check the Console (Window → Console) for specific error messages. Usually closing and reopening Unity resolves transient import issues.</li>
+  </ol>
+</div>
+
+<div class="box see">
+  <div class="label">👁️ What You Should See (After Successful Import)</div>
+  The Unity Editor fills your screen with multiple panels:
+  <ul>
+    <li><strong>Hierarchy</strong> (left) — lists all GameObjects in the current scene</li>
+    <li><strong>Scene / Game</strong> (center) — visual preview of your game</li>
+    <li><strong>Inspector</strong> (right) — properties of the selected object</li>
+    <li><strong>Project</strong> (bottom) — file browser showing Assets/, Packages/, etc.</li>
+    <li><strong>Console</strong> (bottom tab) — log messages, warnings, errors</li>
+  </ul>
+  The title bar shows: <em>puzzle-game-unity - SampleScene - PC, Mac &amp; Linux Standalone - Unity 2022.3.62f3</em>
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<h2 class="chapter" id="ch3">Chapter 3 — Project Structure Explained</h2>
+
+<h3>3.1 Folder Overview</h3>
+
+<table>
+<tr><th>Folder</th><th>Purpose</th></tr>
+<tr><td><code>Assets/</code></td><td>Root folder for all game content — scripts, sprites, scenes, audio, prefabs. Everything you work with lives here.</td></tr>
+<tr><td><code>Assets/Scripts/</code></td><td>All C# game logic — managers, UI controllers, game mechanics.</td></tr>
+<tr><td><code>Assets/Scripts/Managers/</code></td><td>Subfolder for manager scripts (organized by domain).</td></tr>
+<tr><td><code>Assets/Scripts/UI/</code></td><td>UI-specific scripts like WorldMapUI.cs.</td></tr>
+<tr><td><code>Assets/Scenes/</code></td><td>Unity scene files (.unity). After building: SplashScreen.unity and Gameplay.unity.</td></tr>
+<tr><td><code>Assets/Sprites/</code></td><td>All 2D images — backgrounds, tile textures, icons, mascot, UI elements, effects.</td></tr>
+<tr><td><code>Assets/Sprites/Backgrounds/</code></td><td>World-themed background images (Garden, Ocean, Mountain, Space, Crystal).</td></tr>
+<tr><td><code>Assets/Sprites/Tiles/</code></td><td>Number tile sprites.</td></tr>
+<tr><td><code>Assets/Sprites/Mascot/</code></td><td>Pitou the mascot character sprites and animations.</td></tr>
+<tr><td><code>Assets/Sprites/Icons/</code></td><td>UI icons (stars, coins, settings gear, etc.).</td></tr>
+<tr><td><code>Assets/Sprites/UI/</code></td><td>Button backgrounds, panel frames, and other UI chrome.</td></tr>
+<tr><td><code>Assets/Sprites/Effects/</code></td><td>Particle and visual effect textures.</td></tr>
+<tr><td><code>Assets/Editor/</code></td><td>Editor-only scripts — these run in the Unity Editor but are NOT included in builds. Contains SceneBuilder.cs and PlayFromStart.cs.</td></tr>
+<tr><td><code>Assets/Prefabs/</code></td><td>Reusable pre-configured GameObjects (level buttons, tile pieces, UI elements).</td></tr>
+<tr><td><code>Assets/Resources/</code></td><td>Assets loadable at runtime via <code>Resources.Load()</code>. Contains level data.</td></tr>
+<tr><td><code>Assets/Resources/LevelData/</code></td><td>Contains <code>levels.json</code> — the definition of all 200 levels.</td></tr>
+<tr><td><code>Assets/Audio/</code></td><td>Sound effects (SFX/) and music (Music/) audio clips.</td></tr>
+<tr><td><code>Assets/Materials/</code></td><td>Unity materials for visual effects and shaders.</td></tr>
+<tr><td><code>Packages/</code></td><td>Unity package dependencies (managed by Unity Package Manager). Don't edit directly.</td></tr>
+<tr><td><code>ProjectSettings/</code></td><td>Unity project settings — player settings, quality, input, tags. Configured automatically.</td></tr>
+</table>
+
+<h3>3.2 Key Scripts</h3>
+
+<table>
+<tr><th>Script</th><th>Role</th></tr>
+<tr><td><code>GameInitializer.cs</code></td><td><strong>Bootstrap script.</strong> Attached to the first scene. Ensures all manager singletons are created in the correct order. This is the "entry point" of the game.</td></tr>
+<tr><td><code>PuzzleGame.cs</code></td><td><strong>Core game logic.</strong> Handles the SumToTen puzzle mechanic — tile selection, validation (do selected tiles add up to 10?), scoring, move counting, and win/lose conditions.</td></tr>
+<tr><td><code>UIManager.cs</code></td><td><strong>Panel system controller.</strong> A singleton that manages all UI panels (MainMenu, LevelSelect, Gameplay, Victory, Settings, Shop, Pause). Handles transitions between screens.</td></tr>
+<tr><td><code>BoardRenderer.cs</code></td><td><strong>Visual board.</strong> Creates the grid of number tiles, handles tile appearance, selection highlighting, animations when tiles are cleared.</td></tr>
+<tr><td><code>LevelManager.cs</code></td><td><strong>Level data &amp; progression.</strong> Loads levels.json, tracks which levels are completed, manages stars, unlocks worlds.</td></tr>
+<tr><td><code>ThemeManager.cs</code></td><td><strong>Visual theming.</strong> Manages Light and Dark themes with full color palettes. Dark theme unlocks at World 2 completion.</td></tr>
+<tr><td><code>SoundManager.cs</code></td><td><strong>SFX system.</strong> Plays sound effects for tile taps, matches, victories, and UI interactions.</td></tr>
+<tr><td><code>AudioManager.cs</code></td><td><strong>Music system.</strong> Handles background music, menu music, and world-themed music tracks.</td></tr>
+<tr><td><code>WorldMapManager.cs</code></td><td><strong>World navigation.</strong> Manages the 5 worlds (Garden, Ocean, Mountain, Space, Crystal) and progression between them.</td></tr>
+<tr><td><code>JuiceManager.cs</code></td><td><strong>Visual polish.</strong> Particle effects, screen shakes, celebration animations, and "game feel" enhancements.</td></tr>
+<tr><td><code>PitouManager.cs</code></td><td><strong>Mascot system.</strong> Controls Pitou (the mascot character) — expressions, hints, encouragement messages, and daily puzzle notifications.</td></tr>
+<tr><td><code>TutorialManager.cs</code></td><td><strong>Onboarding.</strong> Step-by-step tutorial for first-time players.</td></tr>
+<tr><td><code>HintManager.cs</code></td><td><strong>Hint system.</strong> Provides hints when players are stuck — highlights possible tile combinations.</td></tr>
+<tr><td><code>DailyPuzzleManager.cs</code></td><td><strong>Daily challenge.</strong> Generates or selects a new puzzle each day with bonus rewards.</td></tr>
+<tr><td><code>StreakManager.cs</code></td><td><strong>Streak tracking.</strong> Counts consecutive days played, awards streak bonuses.</td></tr>
+<tr><td><code>AdManager.cs</code></td><td><strong>Ads.</strong> Google AdMob integration for rewarded and interstitial ads. Wrapped in <code>#if GOOGLE_MOBILE_ADS</code> — inactive until you enable it.</td></tr>
+<tr><td><code>MonetizationManager.cs</code></td><td><strong>Economy.</strong> Manages coins, hint purchases, and reward distribution.</td></tr>
+<tr><td><code>IAPManager.cs</code></td><td><strong>In-app purchases.</strong> Unity IAP integration for coin packs and ad removal.</td></tr>
+<tr><td><code>LevelCompleteManager.cs</code></td><td><strong>Victory screen.</strong> Calculates star ratings, displays results, and handles the "next level" flow.</td></tr>
+<tr><td><code>SplashScreen.cs</code></td><td><strong>App intro.</strong> Shows the BrainBlast logo with a fade-in animation, then transitions to the Gameplay scene.</td></tr>
+<tr><td><code>SceneLoader.cs</code></td><td><strong>Scene transitions.</strong> Async scene loading with fade transitions.</td></tr>
+<tr><td><code>ShareCardGenerator.cs</code></td><td><strong>Social sharing.</strong> Generates shareable images of completed levels.</td></tr>
+<tr><td><code>Analytics.cs</code> / <code>AnalyticsManager.cs</code></td><td><strong>Telemetry.</strong> Tracks game events, session data, and player behavior.</td></tr>
+<tr><td><code>RetentionTracker.cs</code></td><td><strong>Retention metrics.</strong> Tracks D1/D7/D30 retention.</td></tr>
+<tr><td><code>ProceduralLevelGenerator.cs</code></td><td><strong>Level generation.</strong> Can generate valid SumToTen puzzle boards procedurally.</td></tr>
+</table>
+
+<h4>Editor Scripts (Assets/Editor/)</h4>
+<table>
+<tr><th>Script</th><th>Role</th></tr>
+<tr><td><code>SceneBuilder.cs</code></td><td>Creates both Unity scenes (SplashScreen + Gameplay) with all UI panels, buttons, and layout. Accessible via the <strong>BrainBlast</strong> menu.</td></tr>
+<tr><td><code>PlayFromStart.cs</code></td><td>Adds a menu option to always start play mode from the SplashScreen scene, regardless of which scene you're currently editing.</td></tr>
+</table>
+
+<h3>3.3 Architecture Overview</h3>
+
+<p>BrainBlast uses a <strong>single-scene architecture</strong> with two scenes:</p>
+
+<ol>
+  <li><strong>SplashScreen</strong> — A minimal scene that shows the logo and fades into scene 2.</li>
+  <li><strong>Gameplay</strong> — Contains ALL game panels (MainMenu, LevelSelect, Gameplay, Victory, Settings, Shop, Pause) managed by <code>UIManager</code>. Only one panel is visible at a time.</li>
+</ol>
+
+<p><strong>How it works:</strong></p>
+<ul>
+  <li><code>GameInitializer</code> runs on Awake and creates all singleton managers if they don't exist.</li>
+  <li><code>UIManager</code> activates/deactivates panel GameObjects to switch screens — no scene loading needed for navigation.</li>
+  <li>All managers use the <strong>Singleton pattern</strong> (<code>ManagerName.Instance</code>) and persist via <code>DontDestroyOnLoad</code> or live within the Gameplay scene.</li>
+  <li>Level data is loaded from <code>Resources/LevelData/levels.json</code> at runtime.</li>
+</ul>
+
+<div class="box tip">
+  <div class="label">💡 Why Single-Scene?</div>
+  Keeping everything in one scene means faster transitions (no loading screens between menus), simpler state management, and fewer bugs from cross-scene references. The UIManager simply toggles panel visibility.
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<h2 class="chapter" id="ch4">Chapter 4 — Building the Scenes</h2>
+
+<p>The project ships with the <em>scripts</em> but the scenes need to be generated by the SceneBuilder tool. This is the most important step!</p>
+
+<h3>4.1 Build All Scenes</h3>
+
+<ol class="steps">
+<li class="step">
+  In the Unity Editor, look at the <strong>top menu bar</strong>. You'll see the standard menus: File, Edit, Assets, GameObject, Component, Window, Help — and a custom menu called <strong>BrainBlast</strong>.
+</li>
+<li class="step">
+  Click <strong>BrainBlast → Build All Scenes</strong>.
+</li>
+<li class="step">
+  Unity will run the SceneBuilder script. You'll see progress in the Console panel. The builder creates:
+  <ul>
+    <li><strong>SplashScreen.unity</strong> — Logo image, background, fade-to-black overlay, GameInitializer object.</li>
+    <li><strong>Gameplay.unity</strong> — Main Canvas with all UI panels:
+      <ul>
+        <li><strong>MainMenuPanel</strong> — Title, Play button, Settings button, Daily Puzzle button</li>
+        <li><strong>LevelSelectPanel</strong> — World tabs, scrollable level grid with 40 level buttons per world</li>
+        <li><strong>GameplayPanel</strong> — Tile grid area, score display, move counter, pause button, hint button</li>
+        <li><strong>VictoryPanel</strong> — Star rating display, score, "Next Level" and "Replay" buttons</li>
+        <li><strong>SettingsPanel</strong> — Sound/music toggles, theme toggle, about info</li>
+        <li><strong>ShopPanel</strong> — Coin packs, ad removal, hint refills</li>
+        <li><strong>PausePanel</strong> — Resume, restart, quit buttons</li>
+      </ul>
+    </li>
+  </ul>
+</li>
+<li class="step">
+  When complete, you'll see a dialog: <strong>"BrainBlast scenes built successfully!"</strong> Click OK.
+</li>
+</ol>
+
+<div class="box see">
+  <div class="label">👁️ What You Should See</div>
+  In the <strong>Project panel</strong>, navigate to <code>Assets/Scenes/</code>. You should see two scene files:
+  <ul>
+    <li><strong>SplashScreen.unity</strong> (sun icon)</li>
+    <li><strong>Gameplay.unity</strong> (sun icon)</li>
+  </ul>
+  Double-click <strong>Gameplay.unity</strong> to open it. In the <strong>Hierarchy panel</strong>, you'll see a Canvas object with child objects for each panel (MainMenuPanel, LevelSelectPanel, etc.). In the <strong>Scene view</strong>, you'll see a purple/navy UI layout with buttons and text.
+</div>
+
+<h3>4.2 Configure Build Settings</h3>
+
+<ol class="steps">
+<li class="step">Go to <strong>File → Build Settings</strong> (Ctrl+Shift+B).</li>
+<li class="step">You'll see a "Scenes In Build" list at the top. If it's empty, you need to add the scenes.</li>
+<li class="step">Click <strong>"Add Open Scenes"</strong> or drag the scene files from the Project panel:
+  <ul>
+    <li>SplashScreen — index <strong>0</strong> (this is critical — it must be first!)</li>
+    <li>Gameplay — index <strong>1</strong></li>
+  </ul>
+  You can drag scenes to reorder them. SplashScreen MUST be at index 0.
+</li>
+<li class="step">Make sure both scenes have their checkboxes <strong>enabled</strong> (checked).</li>
+</ol>
+
+<div class="box danger">
+  <div class="label">🚨 Critical</div>
+  If SplashScreen is not at index 0, the game will start on the wrong screen. The SplashScreen scene's script transitions to the Gameplay scene using <code>SceneManager.LoadScene(1)</code>.
+</div>
+
+<h3>4.3 Play From Start</h3>
+
+<p>When editing the Gameplay scene, pressing Play would skip the splash screen. The project includes a <strong>PlayFromStart</strong> utility:</p>
+
+<ol class="steps">
+<li class="step">Go to <strong>BrainBlast → Play From Start</strong> in the menu.</li>
+<li class="step">This switches to the SplashScreen scene and enters Play mode, giving you the full game flow.</li>
+</ol>
+
+<div class="box tip">
+  <div class="label">💡 Quick Test</div>
+  You can also just open the Gameplay scene and press Play (▶️) to jump straight to the main menu for faster iteration. Use Play From Start when you want to test the complete flow.
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<h2 class="chapter" id="ch5">Chapter 5 — Understanding the Game</h2>
+
+<h3>5.1 The Core Mechanic: SumToTen</h3>
+
+<p>BrainBlast is a number puzzle game with one simple rule:</p>
+
+<div class="box" style="background:var(--purple);border-left:5px solid var(--gold);text-align:center;font-size:1.2rem;">
+  <strong>Select tiles whose numbers add up to exactly 10.</strong>
+</div>
+
+<p>For example:</p>
+<ul>
+  <li>Tap <strong>7</strong> and <strong>3</strong> → they sum to 10 → tiles clear ✅</li>
+  <li>Tap <strong>2</strong>, <strong>3</strong>, and <strong>5</strong> → they sum to 10 → tiles clear ✅</li>
+  <li>Tap <strong>6</strong> and <strong>6</strong> → they sum to 12 → invalid, tiles deselect ❌</li>
+  <li>A single <strong>10</strong> tile → tapping it alone clears it ✅</li>
+</ul>
+
+<p>The goal is to <strong>clear all tiles from the board</strong> in as few moves as possible.</p>
+
+<h3>5.2 Worlds &amp; Levels</h3>
+
+<p>The game has <strong>200 levels</strong> across <strong>5 worlds</strong>, with 40 levels each:</p>
+
+<table>
+<tr><th>World</th><th>Theme</th><th>Levels</th><th>Unlock Condition</th></tr>
+<tr><td>🌿 Garden</td><td>Green, nature, flowers</td><td>1–40</td><td>Available from start</td></tr>
+<tr><td>🌊 Ocean</td><td>Blue, underwater, coral</td><td>41–80</td><td>Complete Garden</td></tr>
+<tr><td>🏔️ Mountain</td><td>Grey, snow, peaks</td><td>81–120</td><td>Complete Ocean</td></tr>
+<tr><td>🚀 Space</td><td>Dark, stars, nebula</td><td>121–160</td><td>Complete Mountain</td></tr>
+<tr><td>💎 Crystal</td><td>Purple, gems, sparkle</td><td>161–200</td><td>Complete Space</td></tr>
+</table>
+
+<h3>5.3 Difficulty Progression</h3>
+
+<table>
+<tr><th>Difficulty</th><th>Grid Size</th><th>Numbers Range</th><th>Typical Levels</th></tr>
+<tr><td>Easy</td><td>3×3 or 4×4</td><td>1–9</td><td>1–50</td></tr>
+<tr><td>Medium</td><td>4×4 or 5×5</td><td>1–9</td><td>51–100</td></tr>
+<tr><td>Hard</td><td>5×5 or 6×6</td><td>1–9, multi-tile combos needed</td><td>101–150</td></tr>
+<tr><td>Expert</td><td>6×6 or 7×7</td><td>1–9, complex arrangements</td><td>151–200</td></tr>
+</table>
+
+<h3>5.4 Star Rating System</h3>
+
+<p>After completing a level, players earn 1–3 stars based on the number of <strong>moves</strong> used:</p>
+
+<table>
+<tr><th>Stars</th><th>Criteria</th></tr>
+<tr><td>⭐⭐⭐ (3 stars)</td><td>Completed within the <em>optimal</em> move count (par or below)</td></tr>
+<tr><td>⭐⭐ (2 stars)</td><td>Completed within 1.5× the optimal move count</td></tr>
+<tr><td>⭐ (1 star)</td><td>Completed the level (any number of moves)</td></tr>
+</table>
+
+<p>Stars accumulate and can be used to unlock bonus content. Players can replay levels to improve their star rating.</p>
+
+<h3>5.5 How levels.json Works</h3>
+
+<p>Level definitions are stored in <code>Assets/Resources/LevelData/levels.json</code>. This file is loaded at runtime by <code>LevelManager</code>. Each level entry looks approximately like this:</p>
+
+<pre>{
+  "levelId": 1,
+  "world": "Garden",
+  "difficulty": "Easy",
+  "gridWidth": 3,
+  "gridHeight": 3,
+  "tiles": [5, 5, 3, 7, 2, 8, 1, 9, 4],
+  "parMoves": 5,
+  "starThresholds": [5, 7, 99]
+}</pre>
+
+<ul>
+  <li><strong>levelId</strong> — Unique number (1–200)</li>
+  <li><strong>world</strong> — Which world this level belongs to</li>
+  <li><strong>difficulty</strong> — Easy / Medium / Hard / Expert</li>
+  <li><strong>gridWidth / gridHeight</strong> — Board dimensions</li>
+  <li><strong>tiles</strong> — Array of numbers filling the grid (left-to-right, top-to-bottom)</li>
+  <li><strong>parMoves</strong> — The minimum/optimal number of moves to solve</li>
+  <li><strong>starThresholds</strong> — Moves needed for [3-star, 2-star, 1-star] (1-star is always 99 = any)</li>
+</ul>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<h2 class="chapter" id="ch6">Chapter 6 — Playing and Testing</h2>
+
+<h3>6.1 Running the Game in the Editor</h3>
+
+<ol class="steps">
+<li class="step">Make sure you've built the scenes (Chapter 4).</li>
+<li class="step">Open <strong>SplashScreen.unity</strong> from Assets/Scenes/ (double-click it in the Project panel).</li>
+<li class="step">Press the <strong>Play button ▶️</strong> at the top-center of the Unity Editor (or press Ctrl+P).</li>
+<li class="step">The Game view activates. You should see the BrainBlast splash animation.</li>
+</ol>
+
+<h3>6.2 Game Flow</h3>
+
+<p>Here's what each screen does and what you'll experience:</p>
+
+<h4>Screen 1: Splash Screen</h4>
+<div class="box see">
+  <div class="label">👁️ What You Should See</div>
+  A dark navy background with the "BrainBlast" logo fading in at the center. The logo is golden text with a subtle glow. After ~2 seconds, the screen fades to black and automatically transitions to the Main Menu.
+</div>
+
+<h4>Screen 2: Main Menu</h4>
+<div class="box see">
+  <div class="label">👁️ What You Should See</div>
+  A dark purple/navy screen with:
+  <ul>
+    <li>The "BrainBlast" title at the top in large golden text</li>
+    <li>Pitou (the mascot) in the center area with a speech bubble</li>
+    <li>A large <strong>"PLAY"</strong> button (purple with white text)</li>
+    <li><strong>"Daily Puzzle"</strong> button</li>
+    <li>A <strong>Settings</strong> gear icon (top-right)</li>
+    <li>Coin counter display (top area)</li>
+  </ul>
+</div>
+
+<h4>Screen 3: Level Select / World Map</h4>
+<div class="box see">
+  <div class="label">👁️ What You Should See</div>
+  After tapping Play:
+  <ul>
+    <li>World tabs at the top (Garden, Ocean, Mountain, Space, Crystal) — only Garden is unlocked initially</li>
+    <li>A scrollable grid of level buttons numbered 1–40</li>
+    <li>Level 1 is highlighted/unlocked; remaining levels show as locked (grayed out or with a lock icon)</li>
+    <li>Completed levels show their star rating (1–3 gold stars)</li>
+    <li>A back arrow button to return to the Main Menu</li>
+  </ul>
+</div>
+
+<h4>Screen 4: Gameplay</h4>
+<div class="box see">
+  <div class="label">👁️ What You Should See</div>
+  After selecting a level:
+  <ul>
+    <li>A grid of number tiles (colored squares with numbers 1–9)</li>
+    <li>Top bar: Level number, move counter ("Moves: 0"), pause button (⏸️), hint button (💡)</li>
+    <li>Tap tiles to select them (they highlight)</li>
+    <li>When selected tiles sum to 10, they disappear with an animation</li>
+    <li>Clear all tiles to win</li>
+  </ul>
+</div>
+
+<h4>Screen 5: Victory</h4>
+<div class="box see">
+  <div class="label">👁️ What You Should See</div>
+  After clearing all tiles:
+  <ul>
+    <li>A celebratory animation with particle effects</li>
+    <li>Star rating display (1–3 stars animate in)</li>
+    <li>Your score and move count</li>
+    <li>"Next Level" button, "Replay" button, "Menu" button</li>
+    <li>Pitou with a congratulatory expression</li>
+  </ul>
+</div>
+
+<h3>6.3 Common Issues When First Playing</h3>
+
+<table>
+<tr><th>Issue</th><th>Cause</th><th>Fix</th></tr>
+<tr><td>Black screen on Play</td><td>Scenes not in Build Settings</td><td>File → Build Settings → Add both scenes (see Ch. 4.2)</td></tr>
+<tr><td>No UI visible</td><td>Scenes not built</td><td>BrainBlast → Build All Scenes</td></tr>
+<tr><td>Buttons don't work</td><td>EventSystem missing</td><td>Rebuild scenes (BrainBlast → Build All Scenes)</td></tr>
+<tr><td>Pink/magenta textures</td><td>Missing sprites</td><td>Check Assets/Sprites/ for files. Reimport if needed (right-click → Reimport).</td></tr>
+<tr><td>Console shows yellow warnings</td><td>Non-critical warnings</td><td>Warnings (yellow) are usually harmless. Only red errors matter.</td></tr>
+<tr><td>"Firebase not configured" warning</td><td>Analytics stub</td><td>Expected — Firebase is optional. Ignore this warning.</td></tr>
+</table>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<h2 class="chapter" id="ch7">Chapter 7 — Customizing the Game</h2>
+
+<h3>7.1 Changing Colors &amp; Theme</h3>
+
+<p>Open <code>Assets/Scripts/ThemeManager.cs</code> in your code editor. The theme system has two themes: <strong>Light</strong> (default) and <strong>Dark</strong>.</p>
+
+<p>Find the <code>ThemeData</code> initialization where colors are defined. Key colors to change:</p>
+
+<pre>// Example color properties in ThemeData:
+backgroundColor    // Main background color
+primaryColor       // Buttons, headers, accents
+accentColor        // Secondary highlights
+successColor       // Correct match feedback (green)
+errorColor         // Invalid match feedback (red)
+textColor          // Primary text
+secondaryTextColor // Dimmed/subtitle text
+cardColor          // Panel/card backgrounds
+buttonTextColor    // Text on buttons</pre>
+
+<p>Change any <code>HexColor("#XXXXXX")</code> value to your desired color. Unity will apply it to all themed UI elements.</p>
+
+<div class="box tip">
+  <div class="label">💡 Quick Color Change</div>
+  The SceneBuilder also defines a color palette at the top of <code>Assets/Editor/SceneBuilder.cs</code>. If you want to change the <em>initial build colors</em>, edit these values before running Build All Scenes:
+<pre>private static readonly Color DarkBg       = HexColor("#1A1A2E");  // Background
+private static readonly Color Purple       = HexColor("#7C3AED");  // Primary
+private static readonly Color YellowGold   = HexColor("#F1C40F");  // Accents
+private static readonly Color Green        = HexColor("#2ECC71");  // Success
+private static readonly Color Red          = HexColor("#E94560");  // Error</pre>
+</div>
+
+<h3>7.2 Adding New Levels</h3>
+
+<ol class="steps">
+<li class="step">Open <code>Assets/Resources/LevelData/levels.json</code> in any text editor.</li>
+<li class="step">Add a new entry at the end of the JSON array following the existing format:
+<pre>{
+  "levelId": 201,
+  "world": "Crystal",
+  "difficulty": "Expert",
+  "gridWidth": 5,
+  "gridHeight": 5,
+  "tiles": [3, 7, 2, 8, 1, 9, 4, 6, 5, 5, 3, 7, 2, 8, 1, 9, 4, 6, 5, 5, 1, 9, 2, 8, 3],
+  "parMoves": 12,
+  "starThresholds": [12, 16, 99]
+}</pre>
+</li>
+<li class="step"><strong>Important rule:</strong> Every tile arrangement must be solvable! Ensure that all tiles CAN be grouped into sets summing to 10. The total of all tile numbers must be divisible into groups of 10.</li>
+<li class="step">Save the file and return to Unity. It will auto-reimport the JSON.</li>
+</ol>
+
+<div class="box warn">
+  <div class="label">⚠️ Validation</div>
+  There's no built-in level validator yet. Test each new level by playing it to make sure it's solvable. Alternatively, use <code>ProceduralLevelGenerator.cs</code> which generates guaranteed-solvable boards.
+</div>
+
+<h3>7.3 Changing the Mascot</h3>
+
+<ol class="steps">
+<li class="step">Create or obtain your mascot sprite (PNG with transparency, recommended 512×512 pixels).</li>
+<li class="step">Drag it into <code>Assets/Sprites/Mascot/</code> in the Unity Project panel.</li>
+<li class="step">Select the imported sprite. In the Inspector, set:
+  <ul>
+    <li>Texture Type: <strong>Sprite (2D and UI)</strong></li>
+    <li>Pixels Per Unit: <strong>100</strong></li>
+    <li>Click <strong>Apply</strong></li>
+  </ul>
+</li>
+<li class="step">Open the Gameplay scene, find the mascot Image component in the Hierarchy (under the relevant panel), and drag your new sprite into its "Source Image" field in the Inspector.</li>
+</ol>
+
+<h3>7.4 Modifying Tile Colors</h3>
+
+<p>Tile colors are defined in <code>BoardRenderer.cs</code>. Look for the color array or dictionary that maps number values to colors. Change the Color values to your preference:</p>
+
+<pre>// Example (colors may vary in actual code):
+Color tileColor1 = HexColor("#FF6B6B"); // Number 1 - Red
+Color tileColor2 = HexColor("#4ECDC4"); // Number 2 - Teal
+Color tileColor3 = HexColor("#45B7D1"); // Number 3 - Blue
+// ... etc</pre>
+
+<h3>7.5 Changing the Game Title</h3>
+
+<ol class="steps">
+<li class="step"><strong>In-game title:</strong> Open <code>SceneBuilder.cs</code> and search for "BrainBlast" — replace it with your desired title. Rebuild scenes.</li>
+<li class="step"><strong>App name (on device):</strong> Go to <strong>Edit → Project Settings → Player</strong>. Change "Product Name" to your desired name.</li>
+<li class="step"><strong>Splash screen text:</strong> Edit <code>SplashScreen.cs</code> or the SplashScreen scene's text objects.</li>
+</ol>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<h2 class="chapter" id="ch8">Chapter 8 — Adding Google AdMob (Optional)</h2>
+
+<div class="box warn">
+  <div class="label">⚠️ This is Optional</div>
+  The game works perfectly without ads. Only add this if you want to monetize with advertisements. The ad code is already written in <code>AdManager.cs</code> — you just need to enable it.
+</div>
+
+<h3>8.1 Download the Plugin</h3>
+
+<ol class="steps">
+<li class="step">Go to <a href="https://github.com/googleads/googleads-mobile-unity/releases">Google Mobile Ads Unity Plugin Releases</a>.</li>
+<li class="step">Download the latest <code>.unitypackage</code> file (e.g., <code>GoogleMobileAds-v9.x.x.unitypackage</code>).</li>
+</ol>
+
+<h3>8.2 Import into Unity</h3>
+
+<ol class="steps">
+<li class="step">In Unity, go to <strong>Assets → Import Package → Custom Package…</strong></li>
+<li class="step">Navigate to the downloaded <code>.unitypackage</code> file and open it.</li>
+<li class="step">An import dialog appears showing all files. Click <strong>"Import"</strong> (import everything).</li>
+<li class="step">Wait for compilation. The Google Mobile Ads plugin adds several folders under Assets/.</li>
+</ol>
+
+<h3>8.3 Enable the AdManager</h3>
+
+<ol class="steps">
+<li class="step">Go to <strong>Edit → Project Settings → Player</strong>.</li>
+<li class="step">Expand <strong>"Other Settings"</strong>.</li>
+<li class="step">Find <strong>"Scripting Define Symbols"</strong> (under the "Script Compilation" section).</li>
+<li class="step">Add <code>GOOGLE_MOBILE_ADS</code> to the list. If there are existing symbols, separate with a semicolon:
+<pre>GOOGLE_MOBILE_ADS</pre></li>
+<li class="step">Press <strong>Enter</strong> or click <strong>Apply</strong>. Unity will recompile scripts.</li>
+</ol>
+
+<div class="box see">
+  <div class="label">👁️ What You Should See</div>
+  After adding the define symbol, Unity recompiles. The Console should show no new errors. The <code>AdManager.cs</code> code inside <code>#if GOOGLE_MOBILE_ADS</code> blocks is now active.
+</div>
+
+<h3>8.4 Configure Ad Unit IDs</h3>
+
+<ol class="steps">
+<li class="step">Open <code>Assets/Scripts/AdManager.cs</code> in your code editor.</li>
+<li class="step">Find the ad unit ID strings. Replace them with your own from the <a href="https://admob.google.com/">AdMob dashboard</a>:
+<pre>// Replace these with your real ad unit IDs:
+private string rewardedAdId = "ca-app-pub-XXXXX/YYYYY";
+private string interstitialAdId = "ca-app-pub-XXXXX/ZZZZZ";</pre></li>
+<li class="step"><strong>For testing,</strong> use Google's official test IDs (already in the code or use):
+<pre>// Android test IDs:
+Rewarded:      "ca-app-pub-3940256099942544/5224354917"
+Interstitial:  "ca-app-pub-3940256099942544/1033173712"</pre></li>
+</ol>
+
+<div class="box danger">
+  <div class="label">🚨 Never Test With Real Ad IDs</div>
+  Using real ad unit IDs during development can get your AdMob account banned. Always use test IDs during development and only switch to real IDs for production builds.
+</div>
+
+<h3>8.5 Google AdMob App Setup</h3>
+
+<ol class="steps">
+<li class="step">Go to <strong>Assets → Google Mobile Ads → Settings</strong> (this menu appears after importing the plugin).</li>
+<li class="step">Enter your <strong>AdMob App ID</strong> (found in your AdMob dashboard under App Settings). It looks like: <code>ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY</code>.</li>
+<li class="step">Enable the platforms you're targeting (Android and/or iOS).</li>
+</ol>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<h2 class="chapter" id="ch9">Chapter 9 — Building for Android</h2>
+
+<h3>9.1 Verify Android Module</h3>
+
+<ol class="steps">
+<li class="step">In Unity Hub → Installs, check that your Unity 2022.3.62f3 installation shows the <strong>"Android"</strong> module tag.</li>
+<li class="step">If it's missing: Right-click the installation → <strong>Add Modules</strong> → check <strong>Android Build Support</strong> (includes SDK, NDK, and OpenJDK) → Install.</li>
+</ol>
+
+<h3>9.2 Switch Platform</h3>
+
+<ol class="steps">
+<li class="step">In Unity, go to <strong>File → Build Settings</strong> (Ctrl+Shift+B).</li>
+<li class="step">In the <strong>Platform</strong> list on the left, select <strong>Android</strong>.</li>
+<li class="step">Click <strong>"Switch Platform"</strong> in the bottom-right. Unity will reimport assets for Android (this takes a few minutes the first time).</li>
+</ol>
+
+<div class="box see">
+  <div class="label">👁️ What You Should See</div>
+  After switching, the Android row in the platform list shows the Unity icon (indicating it's the active platform). The title bar of Unity changes to show "Android" instead of "PC, Mac &amp; Linux Standalone."
+</div>
+
+<h3>9.3 Player Settings</h3>
+
+<ol class="steps">
+<li class="step">In Build Settings, click <strong>"Player Settings…"</strong> (or Edit → Project Settings → Player).</li>
+<li class="step">Configure these fields:
+  <table>
+    <tr><th>Setting</th><th>Value</th><th>Location</th></tr>
+    <tr><td>Company Name</td><td>PitoGames</td><td>Top section</td></tr>
+    <tr><td>Product Name</td><td>BrainBlast</td><td>Top section</td></tr>
+    <tr><td>Default Icon</td><td>Drag your app icon here (512×512 PNG)</td><td>Top section</td></tr>
+    <tr><td>Package Name</td><td><code>com.pitogames.brainblast</code></td><td>Other Settings → Identification</td></tr>
+    <tr><td>Minimum API Level</td><td>Android 7.0 (API 24) or higher</td><td>Other Settings → Identification</td></tr>
+    <tr><td>Target API Level</td><td>Highest installed (API 33+)</td><td>Other Settings → Identification</td></tr>
+    <tr><td>Scripting Backend</td><td>IL2CPP</td><td>Other Settings → Configuration</td></tr>
+    <tr><td>Target Architectures</td><td>ARM64 ✅ (ARMv7 optional)</td><td>Other Settings → Configuration</td></tr>
+    <tr><td>Orientation</td><td>Portrait</td><td>Resolution and Presentation</td></tr>
+  </table>
+</li>
+</ol>
+
+<div class="box warn">
+  <div class="label">⚠️ IL2CPP &amp; ARM64</div>
+  Google Play requires 64-bit (ARM64) support. Make sure <strong>Scripting Backend</strong> is set to IL2CPP (not Mono) and <strong>ARM64</strong> is checked. This is mandatory for Play Store submission.
+</div>
+
+<h3>9.4 Keystore Setup (Signing)</h3>
+
+<p>Android apps must be digitally signed. You need to create a keystore (once) and use it for all builds.</p>
+
+<ol class="steps">
+<li class="step">In Player Settings, scroll to <strong>"Publishing Settings"</strong>.</li>
+<li class="step">Check <strong>"Custom Keystore"</strong>.</li>
+<li class="step">Click <strong>"Keystore Manager"</strong> → <strong>"Create New"</strong>.</li>
+<li class="step">Choose a location to save the keystore file (e.g., <code>brainblast.keystore</code>). Choose a <strong>strong password</strong>.</li>
+<li class="step">Fill in the key details:
+  <ul>
+    <li><strong>Alias:</strong> brainblast</li>
+    <li><strong>Password:</strong> (choose a strong password)</li>
+    <li><strong>Validity (years):</strong> 25</li>
+    <li>Fill in at least the Organization field</li>
+  </ul>
+</li>
+<li class="step">Click <strong>Add Key</strong> / <strong>Create</strong>.</li>
+</ol>
+
+<div class="box danger">
+  <div class="label">🚨 NEVER Lose Your Keystore!</div>
+  <strong>Back up your .keystore file and remember your passwords!</strong> If you lose the keystore, you cannot update your app on Google Play — you'll have to create a completely new app listing. Store the keystore and passwords in a safe place (password manager, encrypted backup).
+</div>
+
+<h3>9.5 Build the APK / AAB</h3>
+
+<ol class="steps">
+<li class="step">Go to <strong>File → Build Settings</strong>.</li>
+<li class="step">For testing on your device, click <strong>"Build"</strong> to create an APK file. Choose a filename like <code>BrainBlast.apk</code>.</li>
+<li class="step">For Google Play, check <strong>"Build App Bundle (Google Play)"</strong> checkbox, then click Build. This creates an AAB file.</li>
+<li class="step">Wait for the build to complete. First-time IL2CPP builds can take <strong>10–30 minutes</strong>.</li>
+</ol>
+
+<div class="box tip">
+  <div class="label">💡 APK vs AAB</div>
+  <ul>
+    <li><strong>APK</strong> — Direct install on devices. Use for testing.</li>
+    <li><strong>AAB</strong> (Android App Bundle) — Required by Google Play. Google generates optimized APKs for each device configuration.</li>
+  </ul>
+</div>
+
+<h3>9.6 Testing on a Physical Device</h3>
+
+<ol class="steps">
+<li class="step">On your Android phone: Go to <strong>Settings → About Phone</strong> → tap "Build Number" 7 times to enable <strong>Developer Options</strong>.</li>
+<li class="step">Go to <strong>Settings → Developer Options</strong> → enable <strong>USB Debugging</strong>.</li>
+<li class="step">Connect your phone via USB cable. When prompted on the phone, tap <strong>"Allow USB Debugging"</strong>.</li>
+<li class="step">Install the APK via terminal:
+<pre>adb install BrainBlast.apk</pre>
+Or in Unity, use <strong>"Build and Run"</strong> which installs and launches automatically.
+</li>
+</ol>
+
+<div class="box see">
+  <div class="label">👁️ What You Should See</div>
+  The app icon appears on your phone's home screen/app drawer. Tapping it launches the splash screen followed by the main menu. Test all game flows: play a level, check settings, verify audio works.
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<h2 class="chapter" id="ch10">Chapter 10 — Publishing to Google Play</h2>
+
+<h3>10.1 Create a Developer Account</h3>
+
+<ol class="steps">
+<li class="step">Go to <a href="https://play.google.com/console">Google Play Console</a>.</li>
+<li class="step">Sign in with your Google account.</li>
+<li class="step">Pay the one-time <strong>$25 registration fee</strong>.</li>
+<li class="step">Fill in your developer profile (name, email, website — optional). Complete identity verification if prompted.</li>
+</ol>
+
+<h3>10.2 Create a New App</h3>
+
+<ol class="steps">
+<li class="step">In Play Console, click <strong>"Create app"</strong>.</li>
+<li class="step">Fill in:
+  <ul>
+    <li><strong>App name:</strong> BrainBlast — Number Puzzle</li>
+    <li><strong>Default language:</strong> English (US)</li>
+    <li><strong>App or Game:</strong> Game</li>
+    <li><strong>Free or Paid:</strong> Free</li>
+  </ul>
+</li>
+<li class="step">Accept the declarations and click <strong>"Create app"</strong>.</li>
+</ol>
+
+<h3>10.3 Upload Your AAB</h3>
+
+<ol class="steps">
+<li class="step">In your app's dashboard, navigate to <strong>Release → Production</strong> (or start with Internal Testing to test first).</li>
+<li class="step">Click <strong>"Create new release"</strong>.</li>
+<li class="step">For app signing: Google recommends <strong>Google Play App Signing</strong> — click "Continue" to opt in (recommended).</li>
+<li class="step">Click <strong>"Upload"</strong> and select your <code>.aab</code> file.</li>
+<li class="step">Add release notes (e.g., "Initial release — 200 levels of number puzzle fun!").</li>
+<li class="step">Click <strong>"Save"</strong> then <strong>"Review release"</strong>.</li>
+</ol>
+
+<h3>10.4 Store Listing</h3>
+
+<p>Navigate to <strong>Grow → Store presence → Main store listing</strong>:</p>
+
+<table>
+<tr><th>Field</th><th>What to Enter</th></tr>
+<tr><td>App name</td><td>BrainBlast — Number Puzzle</td></tr>
+<tr><td>Short description (80 chars)</td><td>Add tiles to make 10! 200 brain-teasing puzzles across 5 beautiful worlds 🧩</td></tr>
+<tr><td>Full description (4000 chars)</td><td>Detailed description of gameplay, features, worlds, etc.</td></tr>
+<tr><td>App icon</td><td>512×512 PNG (your BrainBlast icon)</td></tr>
+<tr><td>Feature graphic</td><td>1024×500 PNG (banner image)</td></tr>
+<tr><td>Screenshots</td><td>At least 2 phone screenshots (1080×1920 recommended). Take these from Unity's Game view or from a device.</td></tr>
+</table>
+
+<div class="box tip">
+  <div class="label">💡 Taking Screenshots</div>
+  In Unity: Set the Game view resolution to 1080×1920, play through the game, and use <strong>Window → Screenshot</strong> or press your OS screenshot shortcut. Alternatively, play on a real device and take phone screenshots.
+</div>
+
+<h3>10.5 Content Rating</h3>
+
+<ol class="steps">
+<li class="step">Go to <strong>Policy → App content → Content rating</strong>.</li>
+<li class="step">Click <strong>"Start questionnaire"</strong>.</li>
+<li class="step">Select your app category: <strong>"Game"</strong> → <strong>"Casual Game"</strong>.</li>
+<li class="step">Answer all questions honestly. BrainBlast has:
+  <ul>
+    <li>No violence ✅</li>
+    <li>No sexual content ✅</li>
+    <li>No controlled substances ✅</li>
+    <li>No user-generated content ✅</li>
+    <li>Ads? Yes (if you added AdMob) or No</li>
+  </ul>
+</li>
+<li class="step">Submit. You'll get a rating (likely "Everyone" / PEGI 3).</li>
+</ol>
+
+<h3>10.6 Other Requirements</h3>
+
+<ul>
+  <li><strong>Privacy Policy:</strong> Required if your app collects any data or shows ads. Create a simple privacy policy and host it on a website (even a GitHub Pages site works). Add the URL in App Content → Privacy Policy.</li>
+  <li><strong>Data Safety:</strong> Fill in the data safety form describing what data your app collects (if any).</li>
+  <li><strong>Target audience:</strong> Declare the target age group (not directed at children under 13 unless you comply with COPPA).</li>
+  <li><strong>Ads declaration:</strong> If you have ads, declare it in the "Ads" section.</li>
+</ul>
+
+<h3>10.7 Submit for Review</h3>
+
+<ol class="steps">
+<li class="step">Go back to <strong>Release → Production</strong>.</li>
+<li class="step">Make sure all sections in the dashboard show green checkmarks.</li>
+<li class="step">Click <strong>"Review release"</strong> then <strong>"Start rollout to Production"</strong>.</li>
+<li class="step">Confirm.</li>
+<li class="step">Google reviews your app — this typically takes <strong>a few hours to a few days</strong> (first submissions may take up to 7 days).</li>
+<li class="step">You'll receive an email when the app is approved and live on Google Play!</li>
+</ol>
+
+<div class="box see">
+  <div class="label">👁️ What You Should See</div>
+  After approval, your app page on Google Play shows your icon, screenshots, description, and an "Install" button. Searching "BrainBlast number puzzle" should find it (may take a few hours to appear in search).
+</div>
+
+<!-- ══════════════════════════════════════════════════════ -->
+<h2 class="chapter" id="ch11">Chapter 11 — Troubleshooting</h2>
+
+<h3>11.1 Common Errors &amp; Fixes</h3>
+
+<table>
+<tr><th>Error</th><th>Cause</th><th>Solution</th></tr>
+<tr><td><code>CS0246: The type or namespace 'TMPro' could not be found</code></td><td>TextMeshPro not imported</td><td>Window → Package Manager → search "TextMeshPro" → Install/Import TMP Essentials</td></tr>
+<tr><td><code>CS0246: The type or namespace 'GoogleMobileAds' could not be found</code></td><td>AdMob plugin not installed but GOOGLE_MOBILE_ADS is defined</td><td>Either install the plugin (Ch. 8) or remove GOOGLE_MOBILE_ADS from Scripting Define Symbols</td></tr>
+<tr><td>Unity opens in Safe Mode</td><td>Compilation errors prevent editor from loading fully</td><td>Read errors in the Safe Mode console. Usually fix by installing missing packages or removing broken define symbols.</td></tr>
+<tr><td>"No Android module loaded"</td><td>Android Build Support not installed</td><td>Unity Hub → Installs → right-click your version → Add Modules → check Android Build Support</td></tr>
+<tr><td>Build fails with Gradle error</td><td>Android SDK/Gradle version mismatch</td><td>Edit → Preferences → External Tools → check "Android SDK" path is correct. Try: in Build Settings → Player Settings → Publishing → uncheck "Custom Gradle Template" if checked.</td></tr>
+<tr><td>App crashes on launch (device)</td><td>Various — usually API level or missing IL2CPP</td><td>Check <code>adb logcat</code> for crash logs. Ensure Minimum API Level is 24+, Scripting Backend is IL2CPP.</td></tr>
+<tr><td>Pink/magenta materials</td><td>Shader not compatible with platform</td><td>Make sure you're using standard/URP shaders. For UI: "UI/Default" shader should work everywhere.</td></tr>
+<tr><td>Scenes are empty</td><td>SceneBuilder not run</td><td>BrainBlast → Build All Scenes</td></tr>
+<tr><td>NullReferenceException at runtime</td><td>Manager not initialized or UI reference missing</td><td>Check that GameInitializer exists in the SplashScreen scene. Rebuild scenes if references are broken.</td></tr>
+</table>
+
+<h3>11.2 Resetting the Project</h3>
+
+<p>If things get really broken, you can reset Unity's cached data:</p>
+
+<ol class="steps">
+<li class="step"><strong>Close Unity completely.</strong></li>
+<li class="step">Navigate to the project folder in your file explorer.</li>
+<li class="step">Delete the <strong>Library/</strong> folder. (This is safe — it's just a cache.)</li>
+<li class="step">Optionally delete the <strong>Temp/</strong> folder too.</li>
+<li class="step">Reopen the project in Unity. It will reimport everything from scratch (takes a few minutes).</li>
+</ol>
+
+<div class="box tip">
+  <div class="label">💡 When to Reset</div>
+  Reset when: sprites appear pink, scripts don't recompile even after fixing errors, weird behavior that shouldn't happen. Do NOT delete: Assets/, Packages/, ProjectSettings/ — those contain your actual project data.
+</div>
+
+<h3>11.3 Reading the Console</h3>
+
+<p>The Console window (<strong>Window → Console</strong> or Ctrl+Shift+C) is your best friend for debugging:</p>
+
+<table>
+<tr><th>Icon</th><th>Type</th><th>Action</th></tr>
+<tr><td>ℹ️ White</td><td>Info / Log</td><td>Normal messages. Usually debug logs you or the code wrote. Safe to ignore.</td></tr>
+<tr><td>⚠️ Yellow</td><td>Warning</td><td>Something might be wrong but the game still works. Read them but don't panic.</td></tr>
+<tr><td>🔴 Red</td><td>Error</td><td>Something IS wrong. Click the error to see details and the script/line that caused it. Fix these!</td></tr>
+</table>
+
+<p><strong>Pro tip:</strong> Click the three toggle buttons at the top of the Console to filter by type. When debugging, focus on red errors first.</p>
+
+<h3>11.4 "Firebase not configured" Warning</h3>
+
+<p>You may see a warning about Firebase not being configured. <strong>This is expected and harmless.</strong> The Analytics system has optional Firebase integration. If you don't need Firebase analytics, simply ignore this warning. The game works perfectly without it.</p>
+
+<h3>11.5 Getting Help</h3>
+
+<ul>
+  <li><strong>Unity Documentation:</strong> <a href="https://docs.unity3d.com/2022.3/Documentation/Manual/">docs.unity3d.com</a></li>
+  <li><strong>Unity Forums:</strong> <a href="https://forum.unity.com/">forum.unity.com</a></li>
+  <li><strong>Stack Overflow:</strong> Search with tag <code>[unity3d]</code></li>
+  <li><strong>Unity Learn:</strong> <a href="https://learn.unity.com/">learn.unity.com</a> — free tutorials for beginners</li>
+</ul>
+
+<hr style="margin:60px 0 30px;border-color:var(--purple);">
+
+<p style="text-align:center;color:var(--dim);font-size:.9rem;">
+  BrainBlast Setup Guide v1.0 — February 2026<br>
+  Made with 💜 for puzzle game creators
+</p>
+
+</div><!-- .wrap -->
+</body>
+</html>
