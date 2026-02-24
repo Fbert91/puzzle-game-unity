@@ -201,6 +201,9 @@ public class TutorialManager : MonoBehaviour
         currentStepIndex = 0;
         isTutorialActive = true;
 
+        // Pause game timer during tutorial
+        Time.timeScale = 0f;
+
         if (tutorialOverlay != null)
             tutorialOverlay.SetActive(true);
 
@@ -224,7 +227,7 @@ public class TutorialManager : MonoBehaviour
         {
             TutorialStep step = steps[currentStepIndex];
 
-            yield return new WaitForSeconds(step.delay);
+            yield return new WaitForSecondsRealtime(step.delay);
 
             // Show speech bubble with message
             ShowSpeechBubble(step.pitouMessage);
@@ -305,7 +308,7 @@ public class TutorialManager : MonoBehaviour
         for (int i = 0; i < message.Length; i++)
         {
             speechBubbleText.text += message[i];
-            yield return new WaitForSeconds(speechAnimSpeed);
+            yield return new WaitForSecondsRealtime(speechAnimSpeed);
         }
     }
 
@@ -375,6 +378,9 @@ public class TutorialManager : MonoBehaviour
     {
         isTutorialActive = false;
         waitingForAction = false;
+
+        // Resume game timer
+        Time.timeScale = 1f;
 
         if (tutorialCoroutine != null)
         {

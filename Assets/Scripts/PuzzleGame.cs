@@ -42,6 +42,7 @@ public class PuzzleGame : MonoBehaviour
     private bool isPuzzleSolved = false;
     private int hintCount = 0;
     private int moveCount = 0;
+    private int score = 0;
     private float sessionStartTime;
 
     public event Action OnPuzzleSolved;
@@ -83,6 +84,7 @@ public class PuzzleGame : MonoBehaviour
         isPuzzleSolved = false;
         selectedTiles.Clear();
         moveCount = 0;
+        score = 0;
         hintCount = 0;
 
         OnBoardUpdated?.Invoke();
@@ -205,15 +207,66 @@ public class PuzzleGame : MonoBehaviour
 
     private bool CheckSumToTen()
     {
-        // Check if all selected tiles sum to target
-        if (selectedTiles.Count == 0) return false;
+        if (selectedTiles.Count < 2) return false;
 
         int sum = 0;
         foreach (var tile in selectedTiles)
         {
             sum += tile.value;
         }
-        return sum == currentLevel.targetSum;
+
+        if (sum == 10)
+        {
+            // Lock/clear the matched tiles
+            foreach (var tile in selectedTiles)
+            {
+                tile.isLocked = true;
+                tile.isSelected = false;
+                tile.value = 0;
+            }
+            selectedTiles.Clear();
+            moveCount++;
+            score += 100;
+
+            // Play success sound
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlayLevelComplete();
+
+            OnBoardUpdated?.Invoke();
+
+            // Check if all non-zero tiles are cleared
+            bool allCleared = true;
+            for (int y = 0; y < currentLevel.gridHeight; y++)
+            {
+                for (int x = 0; x < currentLevel.gridWidth; x++)
+                {
+                    if (!board[x, y].isLocked && board[x, y].value > 0)
+                    {
+                        allCleared = false;
+                        break;
+                    }
+                }
+                if (!allCleared) break;
+            }
+
+            return allCleared;
+        }
+        else if (sum > 10)
+        {
+            // Over 10 — deselect all and give feedback
+            foreach (var tile in selectedTiles)
+            {
+                tile.isSelected = false;
+            }
+            selectedTiles.Clear();
+
+            if (AudioManager.Instance != null)
+                AudioManager.Instance.PlayInvalidMove();
+
+            OnBoardUpdated?.Invoke();
+        }
+
+        return false;
     }
 
     private bool CheckConnectPatterns()
@@ -318,6 +371,7 @@ public class PuzzleGame : MonoBehaviour
 
     public bool IsPuzzleSolved() => isPuzzleSolved;
     public int GetMoveCount() => moveCount;
+    public int GetScore() => score;
     public int GetHintCount() => hintCount;
     public List<Tile> GetSelectedTiles() => selectedTiles;
 }
